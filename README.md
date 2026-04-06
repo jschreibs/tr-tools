@@ -1,12 +1,12 @@
 # TR Tools
 
-A collection of simple browser-based utilities. No build step — open `index.html` directly or serve with any static file server.
+A collection of simple browser-based utilities. Live @ https://jschreibs.github.io/tr-tools/
 
 ## Apps
 
 | App | Description |
 |-----|-------------|
-| [Attendance Tracker](apps/attendanceTracker/) | Calculate how much office time you need |
+| [Attendance Tracker](apps/attendanceTracker/) | Calculate how much in-office days you need to meet TR requirements |
 
 ## Adding a new app
 
