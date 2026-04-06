@@ -1,4 +1,15 @@
 import { STATUS, STATUS_META, REQUIREMENTS, STORAGE_KEYS } from './constants.js';
+import { HOLIDAYS } from './holidays.js';
+
+// Flat map of date key → holiday name, built from all years in HOLIDAYS
+const HOLIDAY_NAMES = Object.values(HOLIDAYS)
+  .flat()
+  .reduce((acc, { date, name }) => { acc[date] = name; return acc; }, {});
+
+function getDayLabel(status, key) {
+  if (status === STATUS.HOLIDAY) return HOLIDAY_NAMES[key] ?? STATUS_META[status].label;
+  return STATUS_META[status].label;
+}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -71,7 +82,7 @@ function computeStats() {
   const { year, month, requirement } = state;
   const weeks = getCalendarWeeks(year, month);
 
-  let totalInOffice = 0, totalRemote = 0, totalOOO = 0;
+  let totalInOffice = 0, totalRemote = 0, totalOOO = 0, totalHoliday = 0;
   let totalWorkingDays = 0; // all Mon–Fri in this month
 
   for (const week of weeks) {
@@ -82,13 +93,15 @@ function computeStats() {
       if      (s === STATUS.IN_OFFICE) { totalInOffice++; }
       else if (s === STATUS.REMOTE)    { totalRemote++;   }
       else if (s === STATUS.OOO)       { totalOOO++;      }
+      else if (s === STATUS.HOLIDAY)   { totalHoliday++;  }
     }
   }
 
   // Threshold: requirement days out of 5 (e.g. 3 days → 60%, 4 days → 80%)
-  const threshold    = requirement / 5;
-  const hasData      = totalInOffice + totalRemote > 0;
-  const effectiveDays = totalWorkingDays - totalOOO; // OOO days don't count against you
+  const threshold   = requirement / 5;
+  const hasData     = totalInOffice + totalRemote > 0;
+  // Holidays and OOO don't count against the denominator
+  const effectiveDays = totalWorkingDays - totalOOO - totalHoliday;
 
   // Percentage of working days spent in-office
   const avg     = hasData ? (totalInOffice / effectiveDays) * 100 : null;
@@ -98,6 +111,7 @@ function computeStats() {
     inOffice: totalInOffice,
     remote:   totalRemote,
     ooo:      totalOOO,
+    holiday:  totalHoliday,
     avg,
     onTrack,
   };
@@ -116,6 +130,7 @@ function render() {
   renderSidebar();
   renderCalendarCells();
   renderTools();
+  renderImportBtn();
 }
 
 function renderTools() {
@@ -139,6 +154,7 @@ function renderSidebar() {
   document.getElementById('stat-in-office').textContent = stats.inOffice;
   document.getElementById('stat-remote').textContent    = stats.remote;
   document.getElementById('stat-ooo').textContent       = stats.ooo;
+  document.getElementById('stat-holiday').textContent   = stats.holiday;
   document.getElementById('stat-avg').textContent       = stats.avg !== null ? `${stats.avg.toFixed(1)}% of days` : '—';
 
   const badge = document.getElementById('stat-status-badge');
@@ -180,7 +196,7 @@ function renderCalendarCells() {
       if (status !== STATUS.NONE) {
         const labelEl = document.createElement('span');
         labelEl.className   = 'day-status-label';
-        labelEl.textContent = STATUS_META[status].label;
+        labelEl.textContent = getDayLabel(status, key);
         cell.appendChild(labelEl);
       }
 
@@ -225,7 +241,7 @@ function openPopover(key, anchorEl) {
 
   const current = state.days[key] ?? STATUS.NONE;
 
-  for (const s of [STATUS.IN_OFFICE, STATUS.REMOTE, STATUS.OOO, STATUS.NONE]) {
+  for (const s of [STATUS.IN_OFFICE, STATUS.REMOTE, STATUS.OOO, STATUS.HOLIDAY, STATUS.NONE]) {
     const meta = STATUS_META[s];
     const btn  = document.createElement('button');
     btn.type      = 'button';
@@ -290,18 +306,23 @@ function onStatusSelect(key, status) {
 
 function applyPaint(key, cellEl) {
   const status = state.paintStatus;
-  state.days[key] = status;
 
-  // Update cell in place (avoids re-render disrupting drag)
-  cellEl.dataset.status = status;
+  if (status === STATUS.NONE) {
+    delete state.days[key];
+    delete cellEl.dataset.status;
+    cellEl.querySelector('.day-status-label')?.remove();
+  } else {
+    state.days[key] = status;
+    cellEl.dataset.status = status;
 
-  let labelEl = cellEl.querySelector('.day-status-label');
-  if (!labelEl) {
-    labelEl = document.createElement('span');
-    labelEl.className = 'day-status-label';
-    cellEl.appendChild(labelEl);
+    let labelEl = cellEl.querySelector('.day-status-label');
+    if (!labelEl) {
+      labelEl = document.createElement('span');
+      labelEl.className = 'day-status-label';
+      cellEl.appendChild(labelEl);
+    }
+    labelEl.textContent = getDayLabel(status, key);
   }
-  labelEl.textContent = STATUS_META[status].label;
 
   renderSidebar();
 }
@@ -314,6 +335,33 @@ function clearMonth() {
   saveDays();
   renderCalendarCells();
   renderSidebar();
+}
+
+function importHolidays() {
+  const holidays = HOLIDAYS[state.year] ?? [];
+  let imported = 0;
+  for (const { date } of holidays) {
+    if (!state.days[date]) {
+      state.days[date] = STATUS.HOLIDAY;
+      imported++;
+    }
+  }
+  if (imported > 0) {
+    saveDays();
+    renderCalendarCells();
+    renderSidebar();
+  }
+  showToast(imported > 0
+    ? `${imported} holiday${imported !== 1 ? 's' : ''} imported for ${state.year}`
+    : `All ${state.year} holidays already imported`
+  );
+}
+
+function renderImportBtn() {
+  const btn = document.getElementById('btn-import-holidays');
+  const hasHolidays = !!(HOLIDAYS[state.year]?.length);
+  btn.disabled = !hasHolidays;
+  btn.textContent = `Import ${state.year} US Holidays`;
 }
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
@@ -351,25 +399,67 @@ document.querySelectorAll('.paint-btn').forEach(btn => {
   });
 });
 
-let clearPending = false;
-const clearBtn   = document.getElementById('btn-clear-month');
+document.getElementById('btn-import-holidays').addEventListener('click', importHolidays);
 
-clearBtn.addEventListener('click', e => {
+document.getElementById('btn-clear-month').addEventListener('click', e => {
   e.stopPropagation();
-  if (clearPending) {
-    clearMonth();
-    resetClearBtn();
-  } else {
-    clearPending = true;
-    clearBtn.textContent = 'Are you sure?';
-    clearBtn.classList.add('clear-month-btn--confirm');
-  }
+  if (document.getElementById('clear-popover')) { closeClearPopover(); return; }
+  openClearPopover();
 });
 
-function resetClearBtn() {
-  clearPending = false;
-  clearBtn.textContent = 'Clear month';
-  clearBtn.classList.remove('clear-month-btn--confirm');
+function openClearPopover() {
+  const anchor = document.getElementById('btn-clear-month');
+
+  const pop = document.createElement('div');
+  pop.id        = 'clear-popover';
+  pop.className = 'clear-popover';
+  pop.addEventListener('click', e => e.stopPropagation());
+
+  const msg = document.createElement('p');
+  msg.className   = 'clear-popover-msg';
+  msg.textContent = `Clear ${MONTH_NAMES[state.month]} ${state.year}?`;
+
+  const actions = document.createElement('div');
+  actions.className = 'clear-popover-actions';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type      = 'button';
+  cancelBtn.className = 'clear-popover-cancel';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', closeClearPopover);
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.type      = 'button';
+  confirmBtn.className = 'clear-popover-confirm';
+  confirmBtn.textContent = 'Clear';
+  confirmBtn.addEventListener('click', () => { clearMonth(); closeClearPopover(); });
+
+  actions.append(cancelBtn, confirmBtn);
+  pop.append(msg, actions);
+  document.body.appendChild(pop);
+
+  // Position above and right-aligned with the button
+  const r = anchor.getBoundingClientRect();
+  pop.style.bottom = `${window.innerHeight - r.top + 8}px`;
+  pop.style.right  = `${window.innerWidth  - r.right}px`;
+}
+
+function closeClearPopover() {
+  document.getElementById('clear-popover')?.remove();
+}
+
+function showToast(message) {
+  document.getElementById('app-toast')?.remove();
+  const toast = document.createElement('div');
+  toast.id        = 'app-toast';
+  toast.className = 'app-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('app-toast--visible'));
+  setTimeout(() => {
+    toast.classList.remove('app-toast--visible');
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+  }, 3000);
 }
 
 document.addEventListener('mouseup', () => {
@@ -381,7 +471,7 @@ document.addEventListener('mouseup', () => {
 
 document.addEventListener('click', () => {
   closePopover();
-  if (clearPending) resetClearBtn();
+  closeClearPopover();
 });
 
 render();

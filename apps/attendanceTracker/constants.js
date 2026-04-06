@@ -3,6 +3,7 @@ export const STATUS = Object.freeze({
   IN_OFFICE: 'in-office',
   REMOTE:    'remote',
   OOO:       'ooo',
+  HOLIDAY:   'holiday',
 });
 
 export const STATUS_META = Object.freeze({
@@ -10,6 +11,7 @@ export const STATUS_META = Object.freeze({
   [STATUS.IN_OFFICE]: { label: 'In Office', bg: '#dcfce7', fg: '#166534' },
   [STATUS.REMOTE]:    { label: 'Remote',    bg: '#dbeafe', fg: '#1e40af' },
   [STATUS.OOO]:       { label: 'OOO',       bg: '#fef3c7', fg: '#92400e' },
+  [STATUS.HOLIDAY]:   { label: 'Holiday',   bg: '#fee2e2', fg: '#991b1b' },
 });
 
 export const REQUIREMENTS = Object.freeze([3, 4]);
