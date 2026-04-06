@@ -1,1 +1,68 @@
-<p>hello world</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TR Tools</title>
+  <link rel="stylesheet" href="shared/css/base.css" />
+  <style>
+    .hero {
+      padding: 3rem 0 2rem;
+    }
+    .hero h1 {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .hero p {
+      margin-top: 0.5rem;
+      color: #555;
+    }
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .app-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow 0.15s;
+    }
+    .app-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .app-card h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .app-card p {
+      margin-top: 0.4rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TR Tools</h1>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Tools</h1>
+      <p>A collection of simple utilities.</p>
+    </section>
+
+    <div class="app-grid">
+      <a class="app-card" href="apps/attendanceTracker/index.html">
+        <h2>Attendance Tracker</h2>
+        <p>Calculate how much time you need in the office.</p>
+      </a>
+    </div>
+  </main>
+</body>
+</html>
