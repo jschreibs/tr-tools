@@ -1,3 +1,22 @@
+/* ─── Rainbow animation ──────────────────────────────────────────────────── */
+
+@keyframes rainbow-scroll {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.sidebar-section-title.rainbow {
+  background: linear-gradient(
+    90deg,
+    #ff0000, #ff8800, #ffee00, #00cc00, #0088ff, #8800ff, #ff0000
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow-scroll 1.5s linear infinite;
+}
+
 /* ─── Layout ──────────────────────────────────────────────────────────────── */
 
 .app-layout {
@@ -120,9 +139,9 @@
   white-space: nowrap;
 }
 
-.badge-neutral { background: #f3f4f6; color: #6b7280; }
+.badge-neutral { background: #f3f4f6; color: #374151; }
 .badge-success { background: #dcfce7; color: #166534; }
-.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-warning { background: #fee2e2; color: #991b1b; }
 
 /* ─── Calendar card ───────────────────────────────────────────────────────── */
 
@@ -195,6 +214,7 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 0.375rem;
+  user-select: none;
 }
 
 /* ─── Day cells ───────────────────────────────────────────────────────────── */
@@ -275,6 +295,84 @@
   border-color: #fde68a;
 }
 .day-cell[data-status="ooo"] .day-status-label { color: #92400e; }
+
+/* ─── Paint mode & tools ─────────────────────────────────────────────────── */
+
+.paint-options {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.paint-btn {
+  flex: 1;
+  padding: 0.4rem 0.2rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: #fff;
+  color: #6b7280;
+  transition: all 0.15s;
+}
+
+.paint-btn:hover:not(.active) {
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.paint-btn[data-status="in-office"].active {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+  font-weight: 600;
+}
+
+.paint-btn[data-status="remote"].active {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.paint-btn[data-status="ooo"].active {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.clear-month-btn {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: #fff;
+  color: #ef4444;
+  transition: all 0.15s;
+}
+
+.clear-month-btn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.clear-month-btn--confirm {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #991b1b;
+  font-weight: 700;
+}
+
+/* Paint mode cursor + disable text selection while dragging */
+
+.calendar-card.paint-mode .day-cell:not(.out-of-month) {
+  cursor: crosshair;
+}
+
 
 /* ─── Popover ─────────────────────────────────────────────────────────────── */
 

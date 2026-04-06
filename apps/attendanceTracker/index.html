@@ -28,6 +28,15 @@
         </section>
 
         <section class="sidebar-section">
+          <h2 class="sidebar-section-title" id="paint-mode-title">Paint mode</h2>
+          <div class="paint-options">
+            <button class="paint-btn" data-status="in-office" type="button">In Office</button>
+            <button class="paint-btn" data-status="remote"    type="button">Remote</button>
+            <button class="paint-btn" data-status="ooo"       type="button">OOO</button>
+          </div>
+        </section>
+
+        <section class="sidebar-section">
           <h2 class="sidebar-section-title">This month</h2>
 
           <div class="stat-list">
@@ -52,7 +61,7 @@
 
           <div class="stat-list">
             <div class="stat-row">
-              <span class="stat-name">Avg in-office / wk</span>
+              <span class="stat-name">Current</span>
               <span class="stat-value" id="stat-avg">—</span>
             </div>
             <div class="stat-row">
@@ -66,10 +75,14 @@
           </div>
         </section>
 
+        <section class="sidebar-section">
+          <button id="btn-clear-month" type="button" class="clear-month-btn">Clear month</button>
+        </section>
+
       </aside>
 
       <!-- ── Calendar ──────────────────────────────────────────────────── -->
-      <div class="calendar-card">
+      <div class="calendar-card" id="calendar-card">
 
         <div class="calendar-nav">
           <button id="btn-prev" type="button" class="nav-btn" aria-label="Previous month">&#8249;</button>

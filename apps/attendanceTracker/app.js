@@ -11,6 +11,8 @@ const state = {
   requirement:      loadRequirement(),
   days:             loadDays(),
   activePopoverKey: null,
+  paintStatus:      null,  // STATUS.* when paint mode is on
+  isPainting:       false,
 };
 
 // ─── Persistence ──────────────────────────────────────────────────────────────
@@ -70,33 +72,34 @@ function computeStats() {
   const weeks = getCalendarWeeks(year, month);
 
   let totalInOffice = 0, totalRemote = 0, totalOOO = 0;
-  let weeksTracked = 0, inOfficeInTrackedWeeks = 0;
+  let totalWorkingDays = 0; // all Mon–Fri in this month
 
   for (const week of weeks) {
-    let wInOffice = 0, wWorking = 0;
-
     for (const date of week) {
       if (date.getMonth() !== month) continue;
+      totalWorkingDays++;
       const s = state.days[toKey(date)];
-      if      (s === STATUS.IN_OFFICE) { totalInOffice++; wInOffice++; wWorking++; }
-      else if (s === STATUS.REMOTE)    { totalRemote++;                wWorking++; }
-      else if (s === STATUS.OOO)       { totalOOO++; }
-    }
-
-    if (wWorking > 0) {
-      weeksTracked++;
-      inOfficeInTrackedWeeks += wInOffice;
+      if      (s === STATUS.IN_OFFICE) { totalInOffice++; }
+      else if (s === STATUS.REMOTE)    { totalRemote++;   }
+      else if (s === STATUS.OOO)       { totalOOO++;      }
     }
   }
 
-  const avg = weeksTracked > 0 ? inOfficeInTrackedWeeks / weeksTracked : null;
+  // Threshold: requirement days out of 5 (e.g. 3 days → 60%, 4 days → 80%)
+  const threshold    = requirement / 5;
+  const hasData      = totalInOffice + totalRemote > 0;
+  const effectiveDays = totalWorkingDays - totalOOO; // OOO days don't count against you
+
+  // Percentage of working days spent in-office
+  const avg     = hasData ? (totalInOffice / effectiveDays) * 100 : null;
+  const onTrack = hasData && (totalInOffice / effectiveDays) >= threshold;
 
   return {
     inOffice: totalInOffice,
     remote:   totalRemote,
     ooo:      totalOOO,
     avg,
-    onTrack:  avg !== null && avg >= requirement,
+    onTrack,
   };
 }
 
@@ -112,6 +115,16 @@ function render() {
     `${MONTH_NAMES[state.month]} ${state.year}`;
   renderSidebar();
   renderCalendarCells();
+  renderTools();
+}
+
+function renderTools() {
+  const active = !!state.paintStatus;
+  document.querySelectorAll('.paint-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.status === state.paintStatus);
+  });
+  document.getElementById('calendar-card').classList.toggle('paint-mode', active);
+  document.getElementById('paint-mode-title').classList.toggle('rainbow', active);
 }
 
 function renderSidebar() {
@@ -122,11 +135,11 @@ function renderSidebar() {
     btn.classList.toggle('active', Number(btn.dataset.req) === state.requirement);
   });
 
-  document.getElementById('stat-target').textContent    = `${state.requirement} days / week`;
+  document.getElementById('stat-target').textContent    = `${(state.requirement / 5 * 100).toFixed(0)}% of days`;
   document.getElementById('stat-in-office').textContent = stats.inOffice;
   document.getElementById('stat-remote').textContent    = stats.remote;
   document.getElementById('stat-ooo').textContent       = stats.ooo;
-  document.getElementById('stat-avg').textContent       = stats.avg !== null ? stats.avg.toFixed(1) : '—';
+  document.getElementById('stat-avg').textContent       = stats.avg !== null ? `${stats.avg.toFixed(1)}% of days` : '—';
 
   const badge = document.getElementById('stat-status-badge');
   if (stats.avg === null) {
@@ -172,7 +185,18 @@ function renderCalendarCells() {
       }
 
       if (inCurrentMonth) {
-        cell.addEventListener('click', e => onDayClick(e, key, cell));
+        cell.addEventListener('mousedown', e => {
+          if (!state.paintStatus) return;
+          e.preventDefault(); // prevent text selection while dragging
+          state.isPainting = true;
+          applyPaint(key, cell);
+        });
+        cell.addEventListener('mouseover', () => {
+          if (state.isPainting && state.paintStatus) applyPaint(key, cell);
+        });
+        cell.addEventListener('click', e => {
+          if (!state.paintStatus) onDayClick(e, key, cell);
+        });
       } else {
         cell.disabled = true;
       }
@@ -262,6 +286,36 @@ function onStatusSelect(key, status) {
   renderSidebar();
 }
 
+// ─── Paint ────────────────────────────────────────────────────────────────────
+
+function applyPaint(key, cellEl) {
+  const status = state.paintStatus;
+  state.days[key] = status;
+
+  // Update cell in place (avoids re-render disrupting drag)
+  cellEl.dataset.status = status;
+
+  let labelEl = cellEl.querySelector('.day-status-label');
+  if (!labelEl) {
+    labelEl = document.createElement('span');
+    labelEl.className = 'day-status-label';
+    cellEl.appendChild(labelEl);
+  }
+  labelEl.textContent = STATUS_META[status].label;
+
+  renderSidebar();
+}
+
+function clearMonth() {
+  const prefix = `${state.year}-${String(state.month + 1).padStart(2, '0')}-`;
+  for (const key of Object.keys(state.days)) {
+    if (key.startsWith(prefix)) delete state.days[key];
+  }
+  saveDays();
+  renderCalendarCells();
+  renderSidebar();
+}
+
 // ─── Navigation ───────────────────────────────────────────────────────────────
 
 function prevMonth() {
@@ -289,6 +343,45 @@ document.querySelectorAll('.req-btn').forEach(btn => {
   });
 });
 
-document.addEventListener('click', closePopover);
+document.querySelectorAll('.paint-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.paintStatus = state.paintStatus === btn.dataset.status ? null : btn.dataset.status;
+    closePopover();
+    renderTools();
+  });
+});
+
+let clearPending = false;
+const clearBtn   = document.getElementById('btn-clear-month');
+
+clearBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  if (clearPending) {
+    clearMonth();
+    resetClearBtn();
+  } else {
+    clearPending = true;
+    clearBtn.textContent = 'Are you sure?';
+    clearBtn.classList.add('clear-month-btn--confirm');
+  }
+});
+
+function resetClearBtn() {
+  clearPending = false;
+  clearBtn.textContent = 'Clear month';
+  clearBtn.classList.remove('clear-month-btn--confirm');
+}
+
+document.addEventListener('mouseup', () => {
+  if (state.isPainting) {
+    state.isPainting = false;
+    saveDays();
+  }
+});
+
+document.addEventListener('click', () => {
+  closePopover();
+  if (clearPending) resetClearBtn();
+});
 
 render();

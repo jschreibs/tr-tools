@@ -19,3 +19,5 @@ No dependencies or build tools required. Open `index.html` in a browser or use a
 ```bash
 npx serve .
 ```
+Then reach an app locally:
+http://localhost:3000/apps/[APP_NAME_HERE]/
