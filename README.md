@@ -6,7 +6,7 @@ A collection of simple browser-based utilities. Live @ https://jschreibs.github.
 
 | App | Description |
 |-----|-------------|
-| [Attendance Tracker](apps/attendanceTracker/) | Calculate how much in-office days you need to meet TR requirements |
+| [Attendance Tracker](apps/attendanceTracker/) | Calculate how many in-office days you need to meet TR requirements |
 
 ## Adding a new app
 

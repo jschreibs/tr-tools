@@ -13,10 +13,85 @@
     <h1>Attendance Tracker</h1>
   </header>
 
-  <main id="app">
-    <!-- App renders here -->
+  <main>
+    <div class="app-layout">
+
+      <!-- ── Sidebar ───────────────────────────────────────────────────── -->
+      <aside class="sidebar">
+
+        <section class="sidebar-section">
+          <h2 class="sidebar-section-title">Requirement</h2>
+          <div class="req-toggle">
+            <button class="req-btn" data-req="3" type="button">3 days</button>
+            <button class="req-btn" data-req="4" type="button">4 days</button>
+          </div>
+        </section>
+
+        <section class="sidebar-section">
+          <h2 class="sidebar-section-title">This month</h2>
+
+          <div class="stat-list">
+            <div class="stat-row">
+              <span class="stat-dot dot-in-office"></span>
+              <span class="stat-name">In office</span>
+              <span class="stat-value" id="stat-in-office">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-dot dot-remote"></span>
+              <span class="stat-name">Remote</span>
+              <span class="stat-value" id="stat-remote">0</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-dot dot-ooo"></span>
+              <span class="stat-name">OOO</span>
+              <span class="stat-value" id="stat-ooo">0</span>
+            </div>
+          </div>
+
+          <div class="stat-divider"></div>
+
+          <div class="stat-list">
+            <div class="stat-row">
+              <span class="stat-name">Avg in-office / wk</span>
+              <span class="stat-value" id="stat-avg">—</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-name">Target</span>
+              <span class="stat-value" id="stat-target">3 days / week</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-name">Status</span>
+              <span class="badge badge-neutral" id="stat-status-badge">No data</span>
+            </div>
+          </div>
+        </section>
+
+      </aside>
+
+      <!-- ── Calendar ──────────────────────────────────────────────────── -->
+      <div class="calendar-card">
+
+        <div class="calendar-nav">
+          <button id="btn-prev" type="button" class="nav-btn" aria-label="Previous month">&#8249;</button>
+          <span id="month-label" class="month-label"></span>
+          <button id="btn-next" type="button" class="nav-btn" aria-label="Next month">&#8250;</button>
+        </div>
+
+        <div class="day-name-row">
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+        </div>
+
+        <div id="calendar-grid" class="calendar-grid"></div>
+
+      </div>
+
+    </div>
   </main>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
