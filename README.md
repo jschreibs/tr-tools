@@ -7,6 +7,7 @@ A collection of simple browser-based utilities. Live @ https://jschreibs.github.
 | App | Description |
 |-----|-------------|
 | [Attendance Tracker](apps/attendanceTracker/) | Calculate how many in-office days you need to meet TR requirements |
+| [Office Sprint](apps/attendanceTracker/) | Race your coworkers with 8-bit characters. Fun randomization tool. |
 
 ## Adding a new app
 
@@ -19,5 +20,3 @@ No dependencies or build tools required. Open `index.html` in a browser or use a
 ```bash
 npx serve .
 ```
-Then reach an app locally:
-http://localhost:3000/apps/[APP_NAME_HERE]/
