@@ -70,14 +70,16 @@ const WIND_LINES = [
   [ 10, 16, 20],
   [ 18,  8, 12],
 ];
-// Each line is two pixels tall and drawn in descending opacity: white → light blue
-const WIND_COLORS = ['#ffffff', '#cce8ff', '#99cfff', '#cce8ff', '#ffffff'];
+// Each line is two pixels tall, white → light blue for normal, white → red for super
+const WIND_COLORS_NORMAL = ['#ffffff', '#cce8ff', '#99cfff', '#cce8ff', '#ffffff'];
+const WIND_COLORS_SUPER  = ['#ffffff', '#ffaaaa', '#ff4444', '#ffaaaa', '#ffffff'];
 
-function drawWindBurst(ctx, x, y, frameIdx) {
+function drawWindBurst(ctx, x, y, frameIdx, isSuper) {
   const f = frameIdx % 2;
+  const colors = isSuper ? WIND_COLORS_SUPER : WIND_COLORS_NORMAL;
   WIND_LINES.forEach(([dy, len0, len1], i) => {
-    const len = f === 0 ? len0 : len1;
-    ctx.fillStyle = WIND_COLORS[i];
+    const len = (f === 0 ? len0 : len1) * (isSuper ? 1.6 : 1);
+    ctx.fillStyle = colors[i];
     ctx.fillRect(Math.round(x) - len, Math.round(y) + dy, len, 2);
   });
 }
@@ -103,12 +105,12 @@ function drawSprite(ctx, frameIdx, x, y, primaryColor) {
 
 const DEFAULT_CHARACTERS = [
   { name: 'Jerome',   color: '#e74c3c' },
-  { name: 'Nick',     color: '#3498db' },
+  { name: 'Nick',     color: '#449fdb' },
   { name: 'Jeff',   color: '#2ecc71' },
   { name: 'Nathan',    color: '#f39c12' },
 ];
 
-const EXTRA_COLORS = ['#9b59b6','#1abc9c','#e67e22','#e91e63','#00bcd4','#ff5722','#795548','#607d8b'];
+const EXTRA_COLORS = ['#df52cc','#20ce94','#8820ce','#e91e63','#00cdd4','#ff5722','#886457','#46565e'];
 
 const state = {
   characters: DEFAULT_CHARACTERS.map(c => ({ ...c })),
@@ -293,10 +295,10 @@ function startRace() {
   const canvas = document.getElementById('race-canvas');
   sizeCanvas(canvas);
 
-  // BASE ≈ 1/60000: at constant speed, runner finishes in ~60s.
-  // SPREAD gives each runner a ±20% variance → ~48–72s at base pace.
-  const BASE   = 0.000015;
-  const SPREAD = 0.000002;
+  // BASE ≈ 1/100000
+  // SPREAD gives each runner a ±10% variance → ~48–72s at base pace.
+  const BASE   = 0.00001;
+  const SPREAD = 0.000001;
 
   state.race = {
     canvas,
@@ -306,9 +308,10 @@ function startRace() {
       color:        c.color,
       progress:     0,        // 0 → 1
       baseSpeed:    BASE + (Math.random() - 0.5) * SPREAD,
-      surgeTimer:   8000 + Math.random() * 7000, // ms until first surge
-      surgeDuration:0,
-      finished:     false,
+      surgeTimer:        500, // ms until first surge
+      surgeDuration:     0,
+      superSurgeDuration:0,
+      finished:          false,
       finishRank:   null,
       frameIdx:     i % 2,    // stagger start frames
       frameTimer:   0,
@@ -342,21 +345,42 @@ function raceLoop(timestamp) {
   const trackLen = r.canvas.width - LABEL_W - FINISH_PAD;
 
   // ── Update ──────────────────────────────────────────────────────────────────
+
+  // Compute current race positions (1st = highest progress) for catchup mechanic
+  const SUPER_SURGE_CHANCE = [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.12, 0.15];
+  const activeRunners = r.runners.filter(rn => !rn.finished);
+  const sorted = [...activeRunners].sort((a, b) => b.progress - a.progress);
+  sorted.forEach((rn, i) => { rn._currentRank = i + 1; });
+
   r.runners.forEach(runner => {
     if (runner.finished) return;
 
-    // Surge timer
+    // Normal surge timer
     runner.surgeTimer -= dt;
     if (runner.surgeTimer <= 0) {
-      runner.surgeDuration = 1500 + Math.random() * 2000; // surge lasts 1.5–3.5s
-      runner.surgeTimer    = 8000 + Math.random() * 7000; // surge every 8-15 seconds
+      runner.surgeDuration = 1000 + Math.random() * 3000; // surge lasts 1–3s
+      runner.surgeTimer    = 5000 + Math.random() * 10000; // surge every 5-15 seconds
     }
     if (runner.surgeDuration > 0) runner.surgeDuration -= dt;
 
-    const surgeBoost = runner.surgeDuration > 0 ? 1.5 : 1;
+    // Super surge — rolls each frame with position-based probability
+    if (runner.superSurgeDuration > 0) {
+      runner.superSurgeDuration -= dt;
+    } else {
+      const rank   = runner._currentRank || 1;
+      const chance = (SUPER_SURGE_CHANCE[rank] || 0) * (dt / 1000);
+      if (Math.random() < chance) {
+        runner.superSurgeDuration = 800 + Math.random() * 1200; // 0.8–2s burst
+      }
+    }
+
+    const superActive = runner.superSurgeDuration > 0;
+    let surgeBoost = 1;
+    if (superActive) surgeBoost = 3;
+    else if (runner.surgeDuration > 0) surgeBoost = 1.5;
 
     // Small random jitter keeps movement feeling organic
-    const jitter = (Math.random() - 0.5) * 0.000004;
+    const jitter = (Math.random() - 0.5) * 0.00001;
     const speed  = Math.max(0.000005, (runner.baseSpeed + jitter) * surgeBoost);
     runner.progress += speed * dt;
 
@@ -461,8 +485,9 @@ function drawRace(ctx, canvas, runners) {
     const ry         = laneTop + (laneInnerH - spriteH) / 2;
     const frame      = runner.finished ? 2 : runner.frameIdx;
 
-    if (runner.surgeDuration > 0 && !runner.finished) {
-      drawWindBurst(ctx, rx, ry + spriteH / 2, runner.frameIdx);
+    const anySurge = (runner.surgeDuration > 0 || runner.superSurgeDuration > 0) && !runner.finished;
+    if (anySurge) {
+      drawWindBurst(ctx, rx, ry + spriteH / 2, runner.frameIdx, runner.superSurgeDuration > 0);
     }
 
     drawSprite(ctx, frame, rx, ry, runner.color);
