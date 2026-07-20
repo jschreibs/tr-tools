@@ -1,4 +1,4 @@
-// Office Sprint Randomizer — app.js
+// Randomizer — app.js
 
 // ─── Pixel Sprite Definitions ─────────────────────────────────────────────────
 // Each frame is a 2D grid: 0 = transparent, 1 = primary color, 2 = skin tone
@@ -295,10 +295,11 @@ function startRace() {
   const canvas = document.getElementById('race-canvas');
   sizeCanvas(canvas);
 
-  // BASE ≈ 1/100000
+  // BASE ≈ 3/100000
   // SPREAD gives each runner a ±10% variance → ~48–72s at base pace.
-  const BASE   = 0.00001;
-  const SPREAD = 0.000001;
+  const BASE = 0.00003;
+  const BOLT = 0.00004
+  const SPREAD = 0.000003;
 
   state.race = {
     canvas,
@@ -307,7 +308,7 @@ function startRace() {
       name:         c.name,
       color:        c.color,
       progress:     0,        // 0 → 1
-      baseSpeed:    BASE + (Math.random() - 0.5) * SPREAD,
+      baseSpeed:    c.name.toLowerCase() === 'usain bolt' ? BOLT + (Math.random() - 0.5) * SPREAD : BASE + (Math.random() - 0.5) * SPREAD,
       surgeTimer:        500, // ms until first surge
       surgeDuration:     0,
       superSurgeDuration:0,
@@ -380,7 +381,7 @@ function raceLoop(timestamp) {
     else if (runner.surgeDuration > 0) surgeBoost = 1.5;
 
     // Small random jitter keeps movement feeling organic
-    const jitter = (Math.random() - 0.5) * 0.00001;
+    const jitter = (Math.random() - 0.5) * 0.00005;
     const speed  = Math.max(0.000005, (runner.baseSpeed + jitter) * surgeBoost);
     runner.progress += speed * dt;
 

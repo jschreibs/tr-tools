@@ -245,12 +245,12 @@
   gap: 0.4rem;
 }
 
-.podium-card:nth-child(1) {
+.podium-card:nth-child(1) { order: 1; }
+.podium-card:nth-child(2) {
   order: 2;
   padding-top: 1.75rem;
   padding-bottom: 1.75rem;
 }
-.podium-card:nth-child(2) { order: 1; }
 .podium-card:nth-child(3) { order: 3; }
 
 .podium-medal {
