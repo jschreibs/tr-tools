@@ -1,0 +1,323 @@
+/* TR Tools hub: a drawer of manila folders.
+   Desk kraft, cream folder paper, ink outlines, one rubber-stamp red
+   (reserved for the Open action). Depth comes only from overlapping sheets. */
+
+@font-face {
+  font-family: "Special Elite";
+  src: url("shared/fonts/special-elite.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Used only inside Race The Coco preview, to match that app's lane labels */
+@font-face {
+  font-family: "Archivo Black";
+  src: url("shared/fonts/archivo-black.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --desk:     #cdbf9f;
+  --manila:   #d9b96a;
+  --manila-2: #e5c97f;
+  --paper:    #fbf6e9;
+  --ink:      #2b2b2b;
+  --ink-soft: #3a352f;
+  --stamp:    #b5342a;
+  --type:     "Special Elite", "Courier New", monospace;
+  --ease:     cubic-bezier(0.22, 1, 0.36, 1);
+  --line:     3px solid var(--ink);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: var(--desk);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding: 3rem 1.25rem 4rem;
+}
+
+::selection { background: var(--ink); color: var(--paper); }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sprite-defs { position: absolute; }
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+
+.hub-head,
+main {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.hub-head h1 {
+  font-family: var(--type);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 6vw, 4.5rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.hub-head p {
+  margin-top: 0.7rem;
+  font-size: 1.15rem;
+  max-width: 60ch;
+  color: var(--ink-soft);
+}
+
+/* ─── Drawer: tabs row + folder ──────────────────────────────────────────── */
+
+.drawer { margin-top: 2.25rem; }
+
+/* Tabs flow and wrap, so any number of tools fits at any width */
+.tabs {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0 6px;
+  margin-bottom: -3px; /* tab bottoms sit on the folder's top rule */
+  padding-left: 1.25rem;
+}
+
+.tab {
+  flex: 0 1 auto;
+  max-width: 300px;
+  min-width: 0;
+  height: 2.6rem;
+  padding: 0 1.4rem;
+  background: var(--manila);
+  color: var(--ink);
+  border: var(--line);
+  border-radius: 14px 14px 0 0;
+  font-family: var(--type);
+  font-size: 1.1rem;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: background 0.2s var(--ease);
+}
+
+.tab:hover { background: var(--manila-2); }
+
+/* The chosen tab stands taller and opens into the folder */
+.tab[aria-selected="true"] {
+  height: 3.2rem;
+  background: var(--paper);
+  border-bottom-color: var(--paper);
+}
+
+.folder {
+  position: relative;
+  isolation: isolate;
+  min-height: 460px;
+  border: var(--line);
+  border-radius: 6px;
+}
+
+/* Two more folders behind the front one: the drawer reads as a stack */
+.folder::before,
+.folder::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: var(--line);
+  border-radius: 6px;
+}
+
+.folder::before { background: #f1e7cc; transform: translateY(-9px); }
+.folder::after  { background: var(--manila); transform: translateY(-18px); }
+
+.folder.is-sliding { animation: slide-forward 0.38s var(--ease); }
+
+@keyframes slide-forward {
+  from { transform: translateY(30px); }
+  to   { transform: none; }
+}
+
+/* ─── Panel ──────────────────────────────────────────────────────────────── */
+
+.panel {
+  background: var(--paper); /* the front sheet; the folders behind show above it */
+  border-radius: 3px;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  min-height: 460px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+}
+
+.panel[hidden] { display: none; }
+
+.panel-copy h2 {
+  font-family: var(--type);
+  font-weight: 400;
+  font-size: clamp(2rem, 4.2vw, 3.1rem);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.panel-copy p {
+  margin: 1rem 0 2rem;
+  font-size: 1.3rem;
+  line-height: 1.45;
+  max-width: 30ch;
+}
+
+/* Rubber stamp: the only red on the page */
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.6rem;
+  border: 4px solid var(--stamp);
+  color: var(--stamp);
+  font-family: var(--type);
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transform: rotate(-3deg);
+  transition: transform 0.12s var(--ease), background 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.stamp:hover {
+  background: var(--stamp);
+  color: var(--paper);
+}
+
+/* Pressed into the page */
+.stamp:active { transform: rotate(-3deg) translateY(3px) scale(0.97); }
+
+.arrow { flex-shrink: 0; }
+
+/* ─── Drawn previews ─────────────────────────────────────────────────────── */
+
+.preview {
+  align-self: stretch;
+  background: #fff;
+  border: var(--line);
+  border-radius: 4px;
+  padding: 1.25rem;
+  transform: rotate(1.2deg);
+}
+
+.preview-calendar {
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  background: #1d4b34;
+  color: #fff;
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
+}
+
+.mini-head i { font-style: normal; opacity: 0.85; font-size: 0.85rem; }
+
+/* Weekday labels share the grid's columns and offsets */
+.mini-days {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: #1d4b34;
+  color: #d9e6de;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0 0 0.5rem 2px;
+}
+
+.mini-days span { padding-left: 0.5rem; }
+
+.mini-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-auto-rows: minmax(4.2rem, 1fr);
+  border-left: 2px solid #1d4b34;
+  border-top: 2px solid #1d4b34;
+}
+
+.mini-grid i {
+  border-right: 2px solid #1d4b34;
+  border-bottom: 2px solid #1d4b34;
+  padding: 0.5rem;
+  font-style: normal;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.mini-grid i { display: flex; flex-direction: column; gap: 0.35rem; }
+
+/* A note under the day's status, or alone on an empty day */
+.mini-grid span {
+  font-size: 0.74rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.mini-grid i:not(.in):not(.ooo):not(.hol):not(.rem) { background: #fff; color: var(--ink); }
+.mini-grid .in    { background: #1d4b34; }
+.mini-grid .rem   { background: #d3ebe6; color: #14574d; }
+.mini-grid .ooo   { background: #6d4c9f; }
+.mini-grid .hol   { background: #d64000; }
+.mini-grid .today { box-shadow: inset 0 0 0 3px #d64000; }
+
+/* Race The Coco's track, drawn on a canvas by hub.js with the real sprites */
+.preview-race {
+  align-self: center;
+  padding: 0;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.preview-race canvas {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 820px) {
+  .panel { grid-template-columns: minmax(0, 1fr); align-items: start; min-height: 0; }
+  .mini-grid i { padding: 0.35rem; font-size: 0.7rem; }
+  .mini-grid span { font-size: 0.66rem; }
+  .preview { padding: 0.75rem; }
+  .folder { min-height: 0; }
+  .tab { font-size: 0.95rem; padding: 0 0.8rem; }
+  .tabs { padding-left: 0.5rem; }
+  .preview { align-self: auto; }
+  .mini-grid { grid-auto-rows: minmax(3rem, 1fr); }
+}
+
+@media (max-width: 560px) {
+  body { padding: 1.75rem 0.75rem 3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folder, .stamp, .tab { transition-duration: 0.01ms; }
+  .folder.is-sliding { animation: none; }
+}

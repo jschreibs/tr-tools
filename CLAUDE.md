@@ -7,7 +7,7 @@ A plain HTML/CSS/JS multi-tool website. No build step, no framework, no bundler 
 ```
 tr-tools/
 ├── apps/                  # One sub-folder per tool
-│   └── attendanceTracker/ # index.html, style.css, app.js
+│   └── planner/ # index.html, style.css, app.js
 ├── shared/
 │   └── css/
 │       └── base.css       # Shared base styles, imported by every app

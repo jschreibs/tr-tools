@@ -4,69 +4,69 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TR Tools</title>
-  <link rel="stylesheet" href="shared/css/base.css" />
-  <style>
-    .hero {
-      padding: 3rem 0 2rem;
-    }
-    .hero h1 {
-      font-size: 2rem;
-      font-weight: 700;
-    }
-    .hero p {
-      margin-top: 0.5rem;
-      color: #555;
-    }
-    .app-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.25rem;
-      margin-top: 2rem;
-    }
-    .app-card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 1.5rem;
-      text-decoration: none;
-      color: inherit;
-      transition: box-shadow 0.15s;
-    }
-    .app-card:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    .app-card h2 {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-    .app-card p {
-      margin-top: 0.4rem;
-      font-size: 0.9rem;
-      color: #666;
-    }
-  </style>
+  <link rel="stylesheet" href="hub.css" />
 </head>
 <body>
-  <header>
+  <svg class="sprite-defs" width="0" height="0" aria-hidden="true">
+    <defs>
+      <!-- stamp arrow, drawn to match the 4px stamp stroke -->
+      <symbol id="arrow" viewBox="0 0 24 24">
+        <path d="M3 12h17M14 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="hub-head">
     <h1>TR Tools</h1>
+    <p>Small utilities for the team. Pull a folder, then stamp Open.</p>
   </header>
 
   <main>
-    <section class="hero">
-      <h1>Tools</h1>
-      <p>A collection of simple utilities.</p>
-    </section>
+    <div class="drawer">
 
-    <div class="app-grid">
-      <a class="app-card" href="apps/attendanceTracker/index.html">
-        <h2>Attendance Tracker</h2>
-        <p>Calculate how many in-office days you need to meet TR requirements.</p>
-      </a>
-      <a class="app-card" href="apps/sprintRandomizer/index.html">
-        <h2>Randomizer</h2>
-        <p>Race your coworkers with 8-bit characters..</p>
-      </a>
+      <div class="tabs" role="tablist" aria-label="Tools" id="tabs">
+        <button class="tab" role="tab" id="tab-planner" aria-controls="panel-planner" aria-selected="true" type="button">Planner</button>
+        <button class="tab" role="tab" id="tab-race-the-coco" aria-controls="panel-race-the-coco" aria-selected="false" type="button" tabindex="-1">Race The Coco</button>
+      </div>
+
+      <div class="folder" id="folder">
+
+        <!-- Planner -->
+        <section class="panel" role="tabpanel" id="panel-planner" aria-labelledby="tab-planner">
+          <div class="panel-copy">
+            <h2>Planner</h2>
+            <p>Plan out your tasks and track your monthly in-office requirements.</p>
+            <a class="stamp" href="apps/planner/index.html">Open <svg class="arrow" width="22" height="22" aria-hidden="true"><use href="#arrow"/></svg><span class="visually-hidden"> Planner</span></a>
+          </div>
+          <div class="preview preview-calendar" aria-hidden="true">
+            <div class="mini-head"><b>December 2026</b><i>60% target</i></div>
+            <div class="mini-days"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span></div>
+            <div class="mini-grid">
+              <i class="in">In Office</i><i class="rem">Remote</i><i class="in">In Office</i><i class="rem">Remote</i><i class="in">In Office</i>
+              <i class="in">In Office</i><i class="in today">In Office<span>Demo @ 1pm</span></i><i class="hol">Holiday</i><i></i><i><span>Dentist @ 2pm</span></i>
+              <i></i><i></i><i class="ooo">OOO</i><i></i><i></i>
+              <i></i><i></i><i><span>Holiday Party @ 6pm</span></i><i class="hol">Holiday</i><i class="hol">Holiday</i>
+            </div>
+          </div>
+        </section>
+
+        <!-- Race The Coco -->
+        <section class="panel" role="tabpanel" id="panel-race-the-coco" aria-labelledby="tab-race-the-coco" hidden>
+          <div class="panel-copy">
+            <h2>Race The Coco</h2>
+            <p>Randomizer tool where you race against your coworkers and The Coco.</p>
+            <a class="stamp" href="apps/raceTheCoco/index.html">Open <svg class="arrow" width="22" height="22" aria-hidden="true"><use href="#arrow"/></svg><span class="visually-hidden"> Race The Coco</span></a>
+          </div>
+          <div class="preview preview-race" aria-hidden="true">
+            <canvas id="race-preview" width="400" height="190"></canvas>
+          </div>
+        </section>
+
+      </div>
     </div>
   </main>
+
+  <script src="apps/raceTheCoco/sprites.js"></script>
+  <script src="hub.js"></script>
 </body>
 </html>

@@ -6,11 +6,6 @@ const HOLIDAY_NAMES = Object.values(HOLIDAYS)
   .flat()
   .reduce((acc, { date, name }) => { acc[date] = name; return acc; }, {});
 
-function getDayLabel(status, key) {
-  if (status === STATUS.HOLIDAY) return HOLIDAY_NAMES[key] ?? STATUS_META[status].label;
-  return STATUS_META[status].label;
-}
-
 // ─── State ────────────────────────────────────────────────────────────────────
 
 const today = new Date();
@@ -21,6 +16,8 @@ const state = {
   month:            today.getMonth(),
   requirement:      loadRequirement(),
   days:             loadDays(),
+  notes:            loadJSON(STORAGE_KEYS.NOTES),
+  plan:             loadJSON(STORAGE_KEYS.PLAN),
   activePopoverKey: null,
   paintStatus:      null,  // STATUS.* when paint mode is on
   isPainting:       false,
@@ -28,10 +25,12 @@ const state = {
 
 // ─── Persistence ──────────────────────────────────────────────────────────────
 
-function loadDays() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.DAYS)) ?? {}; }
+function loadJSON(storageKey) {
+  try { return JSON.parse(localStorage.getItem(storageKey)) ?? {}; }
   catch { return {}; }
 }
+
+function loadDays() { return loadJSON(STORAGE_KEYS.DAYS); }
 
 function loadRequirement() {
   const v = parseInt(localStorage.getItem(STORAGE_KEYS.REQUIREMENT), 10);
@@ -40,6 +39,8 @@ function loadRequirement() {
 
 function saveDays()        { localStorage.setItem(STORAGE_KEYS.DAYS,        JSON.stringify(state.days)); }
 function saveRequirement() { localStorage.setItem(STORAGE_KEYS.REQUIREMENT, String(state.requirement)); }
+function saveNotes()       { localStorage.setItem(STORAGE_KEYS.NOTES,       JSON.stringify(state.notes)); }
+function savePlan()        { localStorage.setItem(STORAGE_KEYS.PLAN,        JSON.stringify(state.plan)); }
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────
 
@@ -131,6 +132,7 @@ function render() {
   renderCalendarCells();
   renderTools();
   renderImportBtn();
+  renderPlan();
 }
 
 function renderTools() {
@@ -140,6 +142,12 @@ function renderTools() {
   });
   document.getElementById('calendar-card').classList.toggle('paint-mode', active);
   document.getElementById('paint-mode-title').classList.toggle('rainbow', active);
+
+  const hint = document.getElementById('paint-hint');
+  hint.hidden = !active;
+  if (active) {
+    hint.textContent = `Click or drag across days. Click the tool again to stop.`;
+  }
 }
 
 function renderSidebar() {
@@ -155,7 +163,14 @@ function renderSidebar() {
   document.getElementById('stat-remote').textContent    = stats.remote;
   document.getElementById('stat-ooo').textContent       = stats.ooo;
   document.getElementById('stat-holiday').textContent   = stats.holiday;
-  document.getElementById('stat-avg').textContent       = stats.avg !== null ? `${stats.avg.toFixed(1)}% of days` : '—';
+
+  const target = `${(state.requirement / 5 * 100).toFixed(0)}%`;
+  document.getElementById('headline-value').textContent =
+    stats.avg !== null ? `${stats.avg.toFixed(1)}%` : 'No data';
+  document.getElementById('headline-note').textContent =
+    stats.avg === null ? `Paint some days. Target ${target} of days`
+    : stats.onTrack    ? `On track. Target ${target} of days`
+    :                    `Behind. Target ${target} of days`;
 
   const badge = document.getElementById('stat-status-badge');
   if (stats.avg === null) {
@@ -170,6 +185,45 @@ function renderSidebar() {
   }
 }
 
+const NOTE_ICON =
+  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M5 3h14a1 1 0 0 1 1 1v10l-6 6H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 20v-5a1 1 0 0 1 1-1h5"/></svg>';
+
+const SHORT_LABELS = {
+  [STATUS.IN_OFFICE]: 'Office',
+  [STATUS.REMOTE]:    'Remote',
+  [STATUS.OOO]:       'OOO',
+  [STATUS.HOLIDAY]:   'Holiday',
+};
+
+function getDayLabel(status, key) {
+  if (status === STATUS.HOLIDAY) return HOLIDAY_NAMES[key] ?? STATUS_META[status].label;
+  return STATUS_META[status].label;
+}
+
+function buildStatusLabel(status, key) {
+  const el = document.createElement('span');
+  el.className     = 'day-status-label';
+  el.dataset.short = SHORT_LABELS[status];
+  el.textContent   = getDayLabel(status, key);
+  return el;
+}
+
+// First three lines of the note, each on its own line
+function buildNotePreview(text) {
+  const el = document.createElement('div');
+  el.className = 'day-note';
+  const lines = text.split('\n').filter(l => l.trim());
+  lines.slice(0, 3).forEach((line, i) => {
+    const row = document.createElement('span');
+    // An ellipsis on the third line signals that more of the note is hidden
+    row.textContent = i === 2 && lines.length > 3 ? `${line}…` : line;
+    el.appendChild(row);
+  });
+  return el;
+}
+
 function renderCalendarCells() {
   const grid = document.getElementById('calendar-grid');
   grid.innerHTML = '';
@@ -181,9 +235,9 @@ function renderCalendarCells() {
       const inCurrentMonth = date.getMonth() === state.month;
       const isToday        = date.getTime() === today.getTime();
 
-      const cell = document.createElement('button');
-      cell.type      = 'button';
-      cell.className = 'day-cell';
+      const cell = document.createElement('div');
+      cell.className   = 'day-cell';
+      cell.dataset.key = key;
       if (status !== STATUS.NONE) cell.dataset.status = status;
       if (isToday)                cell.classList.add('today');
       if (!inCurrentMonth)        cell.classList.add('out-of-month');
@@ -194,13 +248,37 @@ function renderCalendarCells() {
       cell.appendChild(numEl);
 
       if (status !== STATUS.NONE) {
-        const labelEl = document.createElement('span');
-        labelEl.className   = 'day-status-label';
-        labelEl.textContent = getDayLabel(status, key);
-        cell.appendChild(labelEl);
+        cell.appendChild(buildStatusLabel(status, key));
+      }
+
+      const note = state.notes[key];
+      if (note && inCurrentMonth) {
+        cell.appendChild(buildNotePreview(note));
       }
 
       if (inCurrentMonth) {
+        const longDate = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+        // Full-cell button opens the status menu (kept as a sibling of the note
+        // button because buttons cannot nest)
+        const hit = document.createElement('button');
+        hit.type      = 'button';
+        hit.className = 'day-hit';
+        hit.setAttribute('aria-label', `${longDate}: set status`);
+        hit.addEventListener('click', e => {
+          if (!state.paintStatus) onDayClick(e, key, cell);
+        });
+        cell.appendChild(hit);
+
+        const noteBtn = document.createElement('button');
+        noteBtn.type      = 'button';
+        noteBtn.className = 'note-btn';
+        noteBtn.setAttribute('aria-label', `${note ? 'Edit' : 'Add'} note for ${longDate}`);
+        noteBtn.innerHTML = NOTE_ICON;
+        noteBtn.addEventListener('mousedown', e => e.stopPropagation());
+        noteBtn.addEventListener('click', e => { e.stopPropagation(); openNote(key, longDate); });
+        cell.appendChild(noteBtn);
+
         cell.addEventListener('mousedown', e => {
           if (!state.paintStatus) return;
           e.preventDefault(); // prevent text selection while dragging
@@ -210,11 +288,6 @@ function renderCalendarCells() {
         cell.addEventListener('mouseover', () => {
           if (state.isPainting && state.paintStatus) applyPaint(key, cell);
         });
-        cell.addEventListener('click', e => {
-          if (!state.paintStatus) onDayClick(e, key, cell);
-        });
-      } else {
-        cell.disabled = true;
       }
 
       grid.appendChild(cell);
@@ -237,6 +310,8 @@ function openPopover(key, anchorEl) {
   const pop = document.createElement('div');
   pop.id        = 'day-popover';
   pop.className = 'day-popover';
+  pop.setAttribute('role', 'dialog');
+  pop.setAttribute('aria-label', 'Set day status');
   pop.addEventListener('click', e => e.stopPropagation());
 
   const current = state.days[key] ?? STATUS.NONE;
@@ -270,17 +345,64 @@ function openPopover(key, anchorEl) {
 
   document.body.appendChild(pop);
   positionPopover(pop, anchorEl);
+  pop.querySelector('.popover-option.selected, .popover-option')?.focus();
 }
+
+// ─── Sticky note modal ────────────────────────────────────────────────────────
+
+const noteDialog = document.getElementById('note-dialog');
+const noteText   = document.getElementById('note-text');
+let   noteKey    = null;
+
+function openNote(key, longDate) {
+  closePopover();
+  noteKey = key;
+  document.getElementById('note-title').textContent = longDate;
+  noteText.value = state.notes[key] ?? '';
+  document.getElementById('note-delete').hidden = !state.notes[key];
+  noteDialog.showModal();
+  noteText.focus();
+}
+
+function commitNote() {
+  if (!noteKey) return;
+  const value = noteText.value;
+  if (value.trim()) state.notes[noteKey] = value.trim();
+  else              delete state.notes[noteKey];
+  saveNotes();
+  const key = noteKey;
+  noteKey = null;
+  renderCalendarCells();
+  document.querySelector(`.day-cell[data-key="${key}"] .note-btn`)?.focus();
+}
+
+noteText.addEventListener('input', () => {
+  document.getElementById('note-delete').hidden = !noteText.value.trim();
+});
+
+noteDialog.addEventListener('close', commitNote);
+
+document.getElementById('note-delete').addEventListener('click', () => {
+  noteText.value = '';
+  noteDialog.close();
+});
+
+// Click on the backdrop (outside the sticky) saves and closes
+noteDialog.addEventListener('mousedown', e => {
+  if (e.target === noteDialog) noteDialog.close();
+});
 
 function positionPopover(pop, anchor) {
   const ar = anchor.getBoundingClientRect();
+  const ph = pop.offsetHeight;
+  const pw = pop.offsetWidth;
   let top  = ar.bottom + 6;
   let left = ar.left;
 
   // Flip above if clipped at bottom
-  if (top + 170 > window.innerHeight - 8) top = ar.top - 170 - 6;
+  if (top + ph > window.innerHeight - 8) top = Math.max(8, ar.top - ph - 6);
   // Clamp horizontally
-  if (left + 160 > window.innerWidth - 8) left = window.innerWidth - 168;
+  if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
   if (left < 8) left = 8;
 
   pop.style.top  = `${top}px`;
@@ -300,6 +422,10 @@ function onStatusSelect(key, status) {
   closePopover();
   renderCalendarCells();
   renderSidebar();
+
+  const cell = document.querySelector(`.day-cell[data-key="${key}"]`);
+  cell?.querySelector('.day-hit')?.focus();
+  cell?.querySelector('.day-status-label')?.classList.add('stamp');
 }
 
 // ─── Paint ────────────────────────────────────────────────────────────────────
@@ -315,13 +441,13 @@ function applyPaint(key, cellEl) {
     state.days[key] = status;
     cellEl.dataset.status = status;
 
-    let labelEl = cellEl.querySelector('.day-status-label');
-    if (!labelEl) {
-      labelEl = document.createElement('span');
-      labelEl.className = 'day-status-label';
-      cellEl.appendChild(labelEl);
+    const prev = cellEl.querySelector('.day-status-label');
+    if (prev?.dataset.short !== SHORT_LABELS[status] || prev.textContent !== getDayLabel(status, key)) {
+      prev?.remove();
+      const labelEl = buildStatusLabel(status, key);
+      labelEl.classList.add('stamp');
+      cellEl.querySelector('.day-num').after(labelEl);
     }
-    labelEl.textContent = getDayLabel(status, key);
   }
 
   renderSidebar();
@@ -341,7 +467,7 @@ function importHolidays() {
   const holidays = HOLIDAYS[state.year] ?? [];
   let imported = 0;
   for (const { date } of holidays) {
-    if (!state.days[date]) {
+    if (state.days[date] !== STATUS.HOLIDAY) {
       state.days[date] = STATUS.HOLIDAY;
       imported++;
     }
@@ -363,6 +489,98 @@ function renderImportBtn() {
   btn.disabled = !hasHolidays;
   btn.textContent = `Import ${state.year} US Holidays`;
 }
+
+// ─── Notes & to-dos ───────────────────────────────────────────────────────────
+
+function monthKey() {
+  return `${state.year}-${String(state.month + 1).padStart(2, '0')}`;
+}
+
+function getMonthPlan() {
+  const k = monthKey();
+  state.plan[k] ??= { notes: '', todos: [] };
+  return state.plan[k];
+}
+
+function renderPlan() {
+  const plan = state.plan[monthKey()] ?? { notes: '', todos: [] };
+
+  document.getElementById('plan-title').textContent =
+    `${MONTH_NAMES[state.month]} notes`;
+
+  const notesEl = document.getElementById('month-notes');
+  if (notesEl !== document.activeElement) notesEl.value = plan.notes;
+
+  const list = document.getElementById('todo-list');
+  list.innerHTML = '';
+
+  if (plan.todos.length === 0) {
+    const empty = document.createElement('li');
+    empty.className   = 'todo-empty';
+    empty.textContent = 'No to-dos for this month.';
+    list.appendChild(empty);
+    return;
+  }
+
+  for (const todo of plan.todos) {
+    const li = document.createElement('li');
+    li.className = 'todo-item' + (todo.done ? ' done' : '');
+
+    const box = document.createElement('input');
+    box.type    = 'checkbox';
+    box.checked = todo.done;
+    box.id      = `todo-${todo.id}`;
+    box.addEventListener('change', () => {
+      todo.done = box.checked;
+      savePlan();
+      renderPlan();
+    });
+
+    const text = document.createElement('label');
+    text.className   = 'todo-text';
+    text.htmlFor     = box.id;
+    text.textContent = todo.text;
+
+    const remove = document.createElement('button');
+    remove.type      = 'button';
+    remove.className = 'todo-remove';
+    remove.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    remove.setAttribute('aria-label', `Remove to-do: ${todo.text}`);
+    remove.addEventListener('click', () => {
+      const p = getMonthPlan();
+      p.todos = p.todos.filter(t => t.id !== todo.id);
+      savePlan();
+      renderPlan();
+    });
+
+    li.append(box, text, remove);
+    list.appendChild(li);
+  }
+}
+
+document.getElementById('month-notes').addEventListener('input', e => {
+  getMonthPlan().notes = e.target.value;
+  savePlan();
+});
+
+document.getElementById('todo-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const input = document.getElementById('todo-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  getMonthPlan().todos.push({ id: Date.now().toString(36), text, done: false });
+  savePlan();
+  input.value = '';
+  renderPlan();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const key = state.activePopoverKey;
+  closePopover();
+  closeClearPopover();
+  if (key) document.querySelector(`.day-cell[data-key="${key}"] .day-hit`)?.focus();
+});
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 

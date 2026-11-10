@@ -1,0 +1,735 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-10T21:00:00Z",
+  "title": "Design System: TR Tools (Planner and Race The Coco, Hub)",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Warm Paper",
+        "canonical": "#fafaf5",
+        "tonalRamp": [
+          "#34342b",
+          "#5c5b4d",
+          "#8a8875",
+          "#b5b19c",
+          "#d6d1bd",
+          "#eee9da",
+          "#f6f4ea",
+          "#fafaf5"
+        ]
+      },
+      "paper-2": {
+        "role": "neutral",
+        "displayName": "Shadow Paper",
+        "canonical": "#eee9da",
+        "tonalRamp": [
+          "#34342b",
+          "#5c5b4d",
+          "#8a8875",
+          "#b5b19c",
+          "#d0cab4",
+          "#eee9da",
+          "#f4f0e3",
+          "#faf8f0"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Deep Green-Black Ink",
+        "canonical": "#14281e",
+        "tonalRamp": [
+          "#08120c",
+          "#14281e",
+          "#27402f",
+          "#3f5a49",
+          "#617a69",
+          "#8ca193",
+          "#b9c7bd",
+          "#e3eae5"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#4d5a52",
+        "tonalRamp": [
+          "#1c231f",
+          "#303a34",
+          "#4d5a52",
+          "#68756d",
+          "#87928b",
+          "#a9b2ac",
+          "#cdd3cf",
+          "#eceeed"
+        ]
+      },
+      "green": {
+        "role": "primary",
+        "displayName": "Forest Ink Green",
+        "canonical": "#1d4b34",
+        "tonalRamp": [
+          "#0b1f15",
+          "#12301f",
+          "#1d4b34",
+          "#2f6b4c",
+          "#4f8c6c",
+          "#7fb094",
+          "#b3d2c0",
+          "#e1eee6"
+        ]
+      },
+      "green-deep": {
+        "role": "primary",
+        "displayName": "Deep Green",
+        "canonical": "#163a29",
+        "tonalRamp": [
+          "#08170f",
+          "#0e2619",
+          "#163a29",
+          "#245a40",
+          "#3f7c5d",
+          "#6fa388",
+          "#a8c9b7",
+          "#dcebe2"
+        ]
+      },
+      "orange": {
+        "role": "secondary",
+        "displayName": "Planner Orange",
+        "canonical": "#d64000",
+        "tonalRamp": [
+          "#3d1100",
+          "#6e2000",
+          "#a83300",
+          "#d64000",
+          "#ee6a2a",
+          "#f79a68",
+          "#fbc8a8",
+          "#fff1e6"
+        ]
+      },
+      "orange-bg": {
+        "role": "secondary",
+        "displayName": "Orange Wash",
+        "canonical": "#fff1e6",
+        "tonalRamp": [
+          "#7a3a10",
+          "#a85a22",
+          "#d98a52",
+          "#f0b48a",
+          "#f9d2b4",
+          "#ffe5d1",
+          "#fff1e6",
+          "#fff9f4"
+        ]
+      },
+      "remote-bg": {
+        "role": "tertiary",
+        "displayName": "Remote Teal Tint",
+        "canonical": "#d3ebe6",
+        "tonalRamp": [
+          "#0e3a34",
+          "#14574d",
+          "#3a8377",
+          "#68a99e",
+          "#93c6bd",
+          "#b5d9d2",
+          "#d3ebe6",
+          "#eef7f5"
+        ]
+      },
+      "remote-fg": {
+        "role": "tertiary",
+        "displayName": "Remote Teal",
+        "canonical": "#14574d",
+        "tonalRamp": [
+          "#062520",
+          "#0c3b34",
+          "#14574d",
+          "#237a6d",
+          "#3f9c8f",
+          "#72bdb1",
+          "#a9d9d1",
+          "#dcf0ec"
+        ]
+      },
+      "ooo": {
+        "role": "tertiary",
+        "displayName": "Plum",
+        "canonical": "#6d4c9f",
+        "tonalRamp": [
+          "#251a38",
+          "#3d2a5e",
+          "#573c82",
+          "#6d4c9f",
+          "#8b6bb8",
+          "#aa90ce",
+          "#cbb9e2",
+          "#ebe4f4"
+        ]
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "Stamp Red",
+        "canonical": "#9c2b1b",
+        "tonalRamp": [
+          "#33100a",
+          "#5e1b11",
+          "#7f2416",
+          "#9c2b1b",
+          "#bd4a38",
+          "#d87d6e",
+          "#eab5ab",
+          "#fbe9e5"
+        ]
+      },
+      "sticky-peach": {
+        "role": "neutral",
+        "displayName": "Sticky Peach",
+        "canonical": "#ffb27a",
+        "tonalRamp": [
+          "#6b3512",
+          "#9a4f1f",
+          "#c96f33",
+          "#e0834a",
+          "#f3a572",
+          "#ffb27a",
+          "#ffc99d",
+          "#ffe3cc"
+        ]
+      },
+      "sticky-ink": {
+        "role": "neutral",
+        "displayName": "Sticky Brown",
+        "canonical": "#2b1608",
+        "tonalRamp": [
+          "#120a03",
+          "#2b1608",
+          "#4a2a14",
+          "#5e3a20",
+          "#7f5a40",
+          "#a38468",
+          "#c9b39f",
+          "#ece3da"
+        ]
+      },
+      "hub-desk": {
+        "role": "neutral",
+        "displayName": "Desk Kraft",
+        "canonical": "#cdbf9f",
+        "tonalRamp": [
+          "#2e2a20",
+          "#544d3b",
+          "#7d745a",
+          "#a79b7a",
+          "#cdbf9f",
+          "#ded3ba",
+          "#ece5d3",
+          "#f7f3ea"
+        ]
+      },
+      "hub-manila": {
+        "role": "secondary",
+        "displayName": "Manila",
+        "canonical": "#d9b96a",
+        "tonalRamp": [
+          "#3a2f12",
+          "#5f4e1f",
+          "#8f7630",
+          "#bb9b45",
+          "#d9b96a",
+          "#e5cd92",
+          "#f0e0b9",
+          "#f8f0dc"
+        ]
+      },
+      "hub-manila-hover": {
+        "role": "secondary",
+        "displayName": "Manila Light",
+        "canonical": "#e5c97f",
+        "tonalRamp": [
+          "#3a2f12",
+          "#5f4e1f",
+          "#8f7630",
+          "#c4a550",
+          "#e5c97f",
+          "#edd9a2",
+          "#f4e7c4",
+          "#faf3e1"
+        ]
+      },
+      "hub-folder-mid": {
+        "role": "neutral",
+        "displayName": "Middle Folder",
+        "canonical": "#f1e7cc",
+        "tonalRamp": [
+          "#3a3420",
+          "#5f5738",
+          "#8c8156",
+          "#b8aa7c",
+          "#d9cc9f",
+          "#f1e7cc",
+          "#f7f0dc",
+          "#fcf9ee"
+        ]
+      },
+      "hub-paper": {
+        "role": "neutral",
+        "displayName": "Folder Paper",
+        "canonical": "#fbf6e9",
+        "tonalRamp": [
+          "#3a3626",
+          "#625c43",
+          "#8f8864",
+          "#bcb48e",
+          "#ddd6b6",
+          "#f1ead0",
+          "#fbf6e9",
+          "#fefcf5"
+        ]
+      },
+      "hub-ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#2b2b2b",
+        "tonalRamp": [
+          "#0f0f0f",
+          "#1c1c1c",
+          "#2b2b2b",
+          "#444444",
+          "#666666",
+          "#8f8f8f",
+          "#bdbdbd",
+          "#e6e6e6"
+        ]
+      },
+      "hub-ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#3a352f",
+        "tonalRamp": [
+          "#14120f",
+          "#24211d",
+          "#3a352f",
+          "#58524a",
+          "#7a746b",
+          "#a09a91",
+          "#c9c5bd",
+          "#ebe9e5"
+        ]
+      },
+      "hub-stamp": {
+        "role": "primary",
+        "displayName": "Stamp Red",
+        "canonical": "#b5342a",
+        "tonalRamp": [
+          "#2e0e0b",
+          "#561811",
+          "#82241c",
+          "#b5342a",
+          "#cf5a50",
+          "#e08a82",
+          "#efbbb6",
+          "#fae6e4"
+        ]
+      },
+      "sprite-outline": {
+        "role": "neutral",
+        "displayName": "Sprite Outline",
+        "canonical": "#1b1b1b",
+        "tonalRamp": [
+          "#0a0a0a",
+          "#1b1b1b",
+          "#333333",
+          "#4d4d4d",
+          "#707070",
+          "#999999",
+          "#c4c4c4",
+          "#ebebeb"
+        ]
+      },
+      "sprite-skin": {
+        "role": "neutral",
+        "displayName": "Skin",
+        "canonical": "#e8b995",
+        "tonalRamp": [
+          "#55351f",
+          "#80502f",
+          "#a96f45",
+          "#c98d63",
+          "#dba37a",
+          "#e8b995",
+          "#f2d0b6",
+          "#f9e7da"
+        ]
+      },
+      "coco-orange": {
+        "role": "secondary",
+        "displayName": "Coco Orange",
+        "canonical": "#e0701f",
+        "tonalRamp": [
+          "#3f1b04",
+          "#6e3009",
+          "#a34c10",
+          "#c75e17",
+          "#e0701f",
+          "#ee944f",
+          "#f8c48a",
+          "#fde6cc"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Header percentage (2.75rem). Race The Coco: countdown number (clamp 4.5-6rem), podium numerals (2.4rem)."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page title (1.9rem) and month label (1.75rem). Race The Coco: page title 1.9rem, results title 2rem."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Notes panel title (1.25rem) and sticky note title (1.15rem)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Notes, to-dos, popover options, day note previews."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Toolbar group titles, weekday header, panel field labels; uppercase at 800 weight."
+      },
+      "hub-display": {
+        "displayName": "Hub Display",
+        "purpose": "The \"TR Tools\" brand, Special Elite, clamp 2.6-4.5rem."
+      },
+      "hub-headline": {
+        "displayName": "Hub Headline",
+        "purpose": "Tool name on the folder, clamp 2-3.1rem."
+      },
+      "hub-tab": {
+        "displayName": "Hub Tab",
+        "purpose": "Tab labels, 1.1rem."
+      },
+      "hub-stamp": {
+        "displayName": "Hub Stamp",
+        "purpose": "Open action, 1.5rem uppercase tracked 0.08em."
+      },
+      "hub-body": {
+        "displayName": "Hub Body",
+        "purpose": "Tool description in system sans, 1.3rem, max 30ch."
+      }
+    },
+    "shadows": [
+      {
+        "name": "floating-layer",
+        "value": "0 6px 18px rgba(20, 40, 30, 0.22)",
+        "purpose": "Day popover and clear confirm; toast uses 0.25 opacity."
+      },
+      {
+        "name": "sticky-lift",
+        "value": "drop-shadow(0 1px 1px rgba(0,0,0,0.2)) drop-shadow(0 12px 14px rgba(0,0,0,0.3)) drop-shadow(0 28px 30px rgba(0,0,0,0.35))",
+        "purpose": "Sticky note dialog; filter used because clip-path cuts box-shadow."
+      },
+      {
+        "name": "remote-inset-outline",
+        "value": "inset 0 0 0 1.5px #14574d",
+        "purpose": "Outlines the tinted Remote sticker and legend dot."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "All state transitions (0.12-0.2s) and entrances."
+      },
+      {
+        "name": "stamp-in",
+        "value": "0.2s scale 1.18 to 1, opacity 0.4 to 1",
+        "purpose": "Painting a day sticker."
+      },
+      {
+        "name": "sticky-in",
+        "value": "0.28s perspective tilt-in from rotateX(18deg) rotate(-5deg)",
+        "purpose": "Note dialog entrance."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transition-duration 0.01ms under prefers-reduced-motion",
+        "purpose": "Transitions collapse for reduced-motion users."
+      },
+      {
+        "name": "countdown-pop",
+        "value": "0.5s scale 1.35 to 1, opacity 0.3 to 1 on cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Race The Coco: each countdown number."
+      },
+      {
+        "name": "surge-wind-lines",
+        "value": "5 lines x 3px, two alternating frames; green #1d4b34 at 20-60% alpha, super surge orange #d64000 up to 80% alpha, 1.6x length",
+        "purpose": "Race The Coco: trail behind a surging runner."
+      },
+      {
+        "name": "hub-slide-forward",
+        "value": "0.38s translateY(30px) to none on cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Hub: chosen folder slides forward on tab change."
+      },
+      {
+        "name": "hub-stamp-press",
+        "value": "rotate(-3deg) translateY(3px) scale(0.97)",
+        "purpose": "Hub: Open stamp pressed state."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack",
+        "value": "1100px"
+      },
+      {
+        "name": "mobile",
+        "value": "700px"
+      },
+      {
+        "name": "race-stack",
+        "value": "820px"
+      },
+      {
+        "name": "hub-stack",
+        "value": "820px"
+      },
+      {
+        "name": "hub-narrow",
+        "value": "560px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Default control: requirement, paint tools, import holidays. Active fills green.",
+      "html": "<button class=\"ds-btn\">3 days</button> <button class=\"ds-btn ds-active\">4 days</button>",
+      "css": ".ds-btn { padding: 0.5rem 0.9rem; border: 2px solid var(--green, #1d4b34); border-radius: 3px; background: var(--paper, #fafaf5); color: var(--green, #1d4b34); font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: background 0.15s cubic-bezier(0.22,1,0.36,1); } .ds-btn:hover:not(.ds-active) { background: var(--paper-2, #eee9da); } .ds-btn.ds-active { background: var(--green, #1d4b34); color: #fff; } .ds-btn:focus-visible { outline: 3px solid var(--orange, #d64000); outline-offset: 2px; }"
+    },
+    {
+      "name": "Solid Button",
+      "kind": "button",
+      "refersTo": "button-solid",
+      "description": "Primary commit action (Add, Done).",
+      "html": "<button class=\"ds-solid\">Add</button>",
+      "css": ".ds-solid { padding: 0.5rem 0.9rem; border: 2px solid var(--green, #1d4b34); border-radius: 3px; background: var(--green, #1d4b34); color: #fff; font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; } .ds-solid:hover { background: #163a29; } .ds-solid:focus-visible { outline: 3px solid var(--orange, #d64000); outline-offset: 2px; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive action such as Clear month.",
+      "html": "<button class=\"ds-danger\">Clear month</button>",
+      "css": ".ds-danger { padding: 0.5rem 0.95rem; border: 2px solid #9c2b1b; border-radius: 3px; background: var(--paper, #fafaf5); color: #9c2b1b; font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; } .ds-danger:hover { background: #fbe9e5; } .ds-danger:focus-visible { outline: 3px solid var(--orange, #d64000); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "To-do and notes fields: white fill, 2px green border, orange focus ring.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Add a to-do\" />",
+      "css": ".ds-input { width: 100%; box-sizing: border-box; border: 2px solid var(--green, #1d4b34); border-radius: 3px; background: #fff; color: var(--ink, #14281e); font: inherit; font-size: 0.9rem; line-height: 1.45; padding: 0.5rem 0.65rem; caret-color: #d64000; } .ds-input::placeholder { color: #4d5a52; opacity: 1; } .ds-input:focus { outline: 3px solid #d64000; outline-offset: 1px; }"
+    },
+    {
+      "name": "Status Stickers",
+      "kind": "chip",
+      "refersTo": "status-in-office",
+      "description": "Solid status tags on day cells; Remote is the tinted exception with an inset outline.",
+      "html": "<span class=\"ds-tag ds-in\">In Office</span> <span class=\"ds-tag ds-remote\">Remote</span> <span class=\"ds-tag ds-ooo\">OOO</span> <span class=\"ds-tag ds-hol\">Holiday</span>",
+      "css": ".ds-tag { display: inline-block; font-size: 0.75rem; font-weight: 800; line-height: 1; padding: 0.3rem 0.5rem; border-radius: 3px; margin-right: 0.35rem; } .ds-in { background: #1d4b34; color: #fff; } .ds-remote { background: #d3ebe6; color: #14574d; box-shadow: inset 0 0 0 1.5px #14574d; } .ds-ooo { background: #6d4c9f; color: #fff; } .ds-hol { background: #d64000; color: #fff; }"
+    },
+    {
+      "name": "Day Cell",
+      "kind": "card",
+      "refersTo": "day-cell",
+      "description": "Ruled calendar cell with round date number; today gets the orange wash and disc.",
+      "html": "<div style=\"display:flex\"><div class=\"ds-cell\"><span class=\"ds-num\">12</span><span class=\"ds-tag\">In Office</span></div><div class=\"ds-cell ds-today\"><span class=\"ds-num\">13</span></div></div>",
+      "css": ".ds-cell { width: 140px; min-height: 132px; box-sizing: border-box; border-right: 3px solid #1d4b34; border-bottom: 3px solid #1d4b34; border-top: 3px solid #1d4b34; background: #fafaf5; color: #14281e; padding: 0.5rem 0.65rem; display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; } .ds-cell:hover { background: #eee9da; } .ds-num { font-size: 1.15rem; font-weight: 800; min-width: 1.9rem; height: 1.9rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; } .ds-today { background: #fff1e6; } .ds-today .ds-num { background: #d64000; color: #fff; } .ds-tag { background: #1d4b34; color: #fff; font-size: 0.75rem; font-weight: 800; line-height: 1; padding: 0.3rem 0.5rem; border-radius: 3px; }"
+    },
+    {
+      "name": "Race The Coco Pixel Sprite",
+      "kind": "custom",
+      "refersTo": "sprite-outline",
+      "description": "Race The Coco: 16x24 part-code pixel character, soft-shaded (right edge of each part 26% darker) with a 1px #1b1b1b outline, drawn at whole-number scale (4px in race). Shown as a 2x grid of palette cells.",
+      "html": "<div class=\"ds-sprite\"><i class=\"h\"></i><i class=\"s\"></i><i class=\"t\"></i><i class=\"p\"></i><i class=\"o\"></i></div>",
+      "css": ".ds-sprite { display: inline-flex; flex-direction: column; width: 32px; border: 1px solid #1b1b1b; image-rendering: pixelated; } .ds-sprite i { display: block; height: 9px; } .ds-sprite .h { background: #e8c64a; } .ds-sprite .s { background: #f2cfb3; } .ds-sprite .t { background: #262626; } .ds-sprite .p { background: #7b8088; } .ds-sprite .o { background: #f6f6f6; box-shadow: inset 0 -1px 0 #1b1b1b; }"
+    },
+    {
+      "name": "Race The Coco Lanes",
+      "kind": "custom",
+      "refersTo": "green",
+      "description": "Race The Coco: 116px ruled paper lanes with 3px green rules, a checkered finish and scaled surge wind lines clipped to the track. Setup shows an 84px-lane preview of every racer.",
+      "html": "<div class=\"ds-track\"><div class=\"ds-lane\"><span class=\"ds-wind\"></span><span class=\"ds-wind ds-super\"></span></div><div class=\"ds-lane ds-alt\"></div><span class=\"ds-finish\"></span></div>",
+      "css": ".ds-track { position: relative; width: 300px; border: 3px solid #1d4b34; } .ds-lane { height: 60px; background: #fafaf5; border-bottom: 3px solid #1d4b34; position: relative; } .ds-lane.ds-alt { background: #eee9da; border-bottom: 0; } .ds-wind { position: absolute; left: 60px; top: 22px; width: 24px; height: 3px; background: #1d4b3499; } .ds-wind.ds-super { top: 34px; width: 38px; background: #d64000cc; } .ds-finish { position: absolute; right: 0; top: 0; bottom: 0; width: 24px; background: repeating-conic-gradient(#14281e 0 25%, #fff 0 50%) 0 0 / 12px 12px; }"
+    },
+    {
+      "name": "Race The Coco Countdown",
+      "kind": "custom",
+      "refersTo": "countdown-number",
+      "description": "Race The Coco: Archivo Black number in green on Shadow Paper, no caption, racers shown under the number; GO is orange.",
+      "html": "<div class=\"ds-count\"><span>3</span><span class=\"ds-go\">GO</span></div>",
+      "css": ".ds-count { display: flex; gap: 2rem; align-items: center; justify-content: center; padding: 2rem; border: 3px solid #1d4b34; background: #eee9da; } .ds-count span { font-family: 'Archivo Black', system-ui, sans-serif; font-size: 4.5rem; line-height: 1; color: #1d4b34; } .ds-count .ds-go { color: #d64000; }"
+    },
+    {
+      "name": "Race The Coco Podium",
+      "kind": "custom",
+      "refersTo": "podium-step-winner",
+      "description": "Race The Coco: orange 200px winner step flanked by green 140px and 96px steps on a 3px green ground rule, with 96x144 sprites above; rank 4+ rows carry 32x48 sprite thumbnails.",
+      "html": "<div class=\"ds-podium\"><div class=\"ds-step ds-s2\"><span>2</span></div><div class=\"ds-step ds-s1\"><span>1</span></div><div class=\"ds-step ds-s3\"><span>3</span></div></div>",
+      "css": ".ds-podium { display: flex; align-items: flex-end; gap: 0.75rem; width: 360px; border-bottom: 3px solid #1d4b34; } .ds-step { flex: 1; display: flex; justify-content: center; padding-top: 0.6rem; background: #1d4b34; color: #fff; border: 3px solid #1d4b34; border-bottom: 0; } .ds-step span { font-family: 'Archivo Black', system-ui, sans-serif; font-size: 2.4rem; line-height: 1; } .ds-s1 { height: 200px; background: #d64000; } .ds-s2 { height: 140px; } .ds-s3 { height: 96px; }"
+    },
+    {
+      "name": "Sticky Note",
+      "kind": "custom",
+      "refersTo": "sticky-note",
+      "description": "Day note editor: tilted peach note with tape, ruled lines and a folded corner.",
+      "html": "<div class=\"ds-sticky\"><span class=\"ds-tape\"></span><h2>Note</h2><p>Dentist at 2.</p></div>",
+      "css": ".ds-sticky { position: relative; width: 260px; padding: 2.1rem 1.5rem 1.25rem; background: linear-gradient(172deg, #ffc99d 0%, #ffb27a 100%); color: #2b1608; transform: rotate(-1.6deg); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%); } .ds-sticky h2 { font-family: 'Archivo Black', system-ui, sans-serif; font-weight: 400; font-size: 1.15rem; margin: 0 0 0.7rem; } .ds-sticky p { margin: 0; line-height: 1.7rem; background-image: repeating-linear-gradient(transparent 0, transparent calc(1.7rem - 1px), rgba(43,22,8,0.28) calc(1.7rem - 1px), rgba(43,22,8,0.28) 1.7rem); } .ds-tape { position: absolute; top: -0.2rem; left: 50%; width: 96px; height: 26px; transform: translateX(-50%) rotate(2deg); background: rgba(255,255,255,0.5); }"
+    },
+    {
+      "name": "Hub Tabs",
+      "kind": "nav",
+      "refersTo": "hub-tab",
+      "description": "Hub: manila folder tabs; the selected tab is taller and paper-colored, opening into the folder.",
+      "html": "<div class=\"ds-hub-tabs\"><button class=\"ds-hub-tab ds-hub-sel\">Planner</button><button class=\"ds-hub-tab\">Race The Coco</button></div>",
+      "css": ".ds-hub-tabs { display: flex; align-items: flex-end; gap: 6px; padding: 1.25rem 1.25rem 0; background: #cdbf9f; } .ds-hub-tab { height: 2.6rem; padding: 0 1.4rem; background: #d9b96a; color: #2b2b2b; border: 3px solid #2b2b2b; border-radius: 14px 14px 0 0; font-family: \"Special Elite\", \"Courier New\", monospace; font-size: 1.1rem; cursor: pointer; transition: background 0.2s cubic-bezier(0.22,1,0.36,1); } .ds-hub-tab:hover { background: #e5c97f; } .ds-hub-sel { height: 3.2rem; background: #fbf6e9; border-bottom-color: #fbf6e9; } .ds-hub-tab:focus-visible { outline: 3px solid #2b2b2b; outline-offset: 3px; }"
+    },
+    {
+      "name": "Hub Open Stamp",
+      "kind": "button",
+      "refersTo": "hub-stamp",
+      "description": "Hub: the only red element; outlined rubber stamp that fills on hover and presses down on click.",
+      "html": "<a class=\"ds-hub-stamp\" href=\"#\">Open <svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 12h17M14 5l7 7-7 7\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" stroke-linecap=\"square\"/></svg></a>",
+      "css": ".ds-hub-stamp { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.7rem 1.6rem; border: 4px solid #b5342a; color: #b5342a; font-family: \"Special Elite\", \"Courier New\", monospace; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.08em; text-decoration: none; transform: rotate(-3deg); transition: transform 0.12s cubic-bezier(0.22,1,0.36,1), background 0.15s, color 0.15s; } .ds-hub-stamp:hover { background: #b5342a; color: #fbf6e9; } .ds-hub-stamp:active { transform: rotate(-3deg) translateY(3px) scale(0.97); } .ds-hub-stamp:focus-visible { outline: 3px solid #2b2b2b; outline-offset: 3px; }"
+    },
+    {
+      "name": "Hub Folder Stack",
+      "kind": "card",
+      "refersTo": "hub-folder",
+      "description": "Hub: front folder sheet with two outlined folders peeking behind it; depth only from overlap.",
+      "html": "<div class=\"ds-hub-folder\"><h2>Race The Coco</h2><p>Randomizer tool where you race against your coworkers and The Coco.</p></div>",
+      "css": ".ds-hub-folder { position: relative; isolation: isolate; margin: 24px 8px 0; padding: 2rem; min-height: 140px; background: #fbf6e9; border: 3px solid #2b2b2b; border-radius: 6px; color: #2b2b2b; } .ds-hub-folder::before, .ds-hub-folder::after { content: \"\"; position: absolute; inset: 0; z-index: -1; border: 3px solid #2b2b2b; border-radius: 6px; } .ds-hub-folder::before { background: #f1e7cc; transform: translateY(-9px); } .ds-hub-folder::after { background: #d9b96a; transform: translateY(-18px); } .ds-hub-folder h2 { margin: 0; font-family: \"Special Elite\", \"Courier New\", monospace; font-weight: 400; font-size: 2rem; line-height: 1.05; } .ds-hub-folder p { margin: 0.6rem 0 0; font-size: 1.1rem; max-width: 30ch; }"
+    },
+    {
+      "name": "Hub Race Miniature",
+      "kind": "custom",
+      "refersTo": "hub-preview-race",
+      "description": "Hub: canvas picture of Race The Coco (real sprites, paper lanes, 3px green rules, Archivo Black labels, checkered finish) inside a 3px ink outline; a depiction, not hub tokens.",
+      "html": "<div class=\"ds-hub-mini\"><div class=\"ds-l1\"><b>Jerome</b></div><div class=\"ds-l2\"><b>The Coco</b></div><span class=\"ds-fin\"></span></div>",
+      "css": ".ds-hub-mini { position: relative; width: 320px; border: 3px solid #2b2b2b; border-radius: 4px; overflow: hidden; transform: rotate(1.2deg); } .ds-hub-mini div { height: 80px; border-bottom: 3px solid #1d4b34; display: flex; align-items: center; padding-left: 14px; } .ds-hub-mini b { font-family: 'Archivo Black', system-ui, sans-serif; font-weight: 400; font-size: 16px; color: #14281e; } .ds-l1 { background: #fafaf5; } .ds-l2 { background: #eee9da; } .ds-fin { position: absolute; right: 0; top: 0; bottom: 0; width: 20px; background: repeating-conic-gradient(#14281e 0 25%, #fff 0 50%) 0 0 / 10px 10px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Cubicle Wall Planner",
+    "overview": "A printed month planner pinned to a cubicle wall, with a pen beside it. Warm paper, a heavy forest-green ruled grid, solid color stickers for status. It answers \"am I on track?\" at a glance and lets you mark days the way you would mark paper.\n\nIt is square-cornered, ruled and flat. Color is information: each status is a solid sticker, and a single orange accent marks what is live (today, the active holiday tool, selection, focus, notes). The one soft, tactile moment is the sticky note editor, which is a real object lying on the wall.\n\nThe build refuses the soft rounded SaaS calendar: pale pastel cells, gray hairline grids, generous radii.",
+    "keyCharacteristics": [
+      "Heavy 3px green rules draw the grid, panel and popover edges; corners are 3px at most.",
+      "Solid status stickers, never tinted cells; Remote is the only tinted tag and carries an inset outline.",
+      "Archivo Black for numerals and titles, system sans at 700-800 for everything else, tabular numerals throughout.",
+      "One accent (orange) used sparingly; green is structure and ink.",
+      "Flat at rest; lift appears only on floating layers (popover, toast, sticky note).",
+      "Race The Coco extension: the same paper, green rules and single orange, now holding a race; 16x24 shaded, outlined pixel sprites drawn at 4px per pixel are the only color on the track."
+    ],
+    "rules": [
+      {
+        "name": "The One Accent Rule",
+        "body": "Orange marks what is live or noted. It is never decoration and never a second brand color.",
+        "section": "colors"
+      },
+      {
+        "name": "The Solid Sticker Rule",
+        "body": "Status is a solid fill with white text; the only exception is Remote's tinted teal with an inset outline. No pastel cell washes.",
+        "section": "colors"
+      },
+      {
+        "name": "The Status Palette Rule",
+        "body": "In Office green, Remote teal, OOO plum, Holiday orange are fixed, identical across legend dots, paint tools and day stickers.",
+        "section": "colors"
+      },
+      {
+        "name": "The Block Numerals Rule",
+        "body": "Large figures (percentage, month, title) use the display face; everything else stays in system sans.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-On-The-Wall Rule",
+        "body": "Cells, panels, buttons and badges carry no shadow. Only layers that float above the wall do.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Sprites Are The Colour Rule",
+        "body": "On the race screens the sprites and the winner's orange step are the only color beyond paper, green and ink.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do build structure with 3px green rules and 2px green control borders.",
+      "Do show status as a solid sticker with white text, in the fixed four-status palette.",
+      "Do reserve orange for what is live: today, selection, focus, notes, Holiday.",
+      "Do set big numbers in Archivo Black and keep tabular numerals on.",
+      "Do keep a 3px orange focus outline on every interactive element.",
+      "Do honor `prefers-reduced-motion`.",
+      "Do (Race The Coco) draw sprites at whole-number scale, pixelated, with the 1px `#1b1b1b` outline, and add characters as new part-code palettes.",
+      "Do (Race The Coco) use orange for the winner step, GO and super-surge lines, green for normal surge and all other steps."
+    ],
+    "donts": [
+      "Don't use pastel cell fills or gray hairline grids; this world rejects the soft SaaS calendar.",
+      "Don't round beyond 3px (the date disc and the sticky note are the only exceptions).",
+      "Don't add shadows to anything resting on the wall; shadow is for floating layers.",
+      "Don't introduce a second accent or new status colors.",
+      "Don't extend this look to the hub; the hub has its own character (Part 2). Race The Coco is the one sanctioned extension.",
+      "Don't reskin Race The Coco as a video game; sprites on ruled paper, no neon, scanlines or arcade chrome.",
+      "Don't key a sprite or behaviour to a typed racer name."
+    ],
+    "hub": {
+      "northStar": "The Manila Drawer",
+      "overview": "The hub is a drawer of manila folders, one per tool. It refuses the equal grid of icon cards: the tool you pick is pulled forward at full size, with its name, one-line description, a drawn miniature and a red OPEN stamp. A desk-kraft ground, cream folder paper, heavy ink outlines and typewriter lettering give it a bold identity of its own, separate from the tools it opens.\n\nDepth is made only of overlapping sheets: two more folders peek above the front one, and choosing a tab slides that folder forward. Red appears once, on the Open stamp, and nowhere else.",
+      "keyCharacteristics": [
+        "Desk kraft ground, manila tabs, cream paper, ink outlines at a uniform 3px.",
+        "Special Elite typewriter face for brand, tabs, tool names and the stamp; system sans for body prose.",
+        "One red (Stamp Red), reserved for the Open action.",
+        "Flat paper, no blur or glow; stacking is the only depth.",
+        "Tabs flow and wrap, so 3 to 6 tools fit at any width."
+      ],
+      "rules": [
+        {
+          "name": "The One Stamp Rule",
+          "body": "Stamp Red is used on the Open action only. Never for status, errors, links or decoration.",
+          "section": "colors"
+        },
+        {
+          "name": "The Typewriter Label Rule",
+          "body": "Typewriter face for what names or triggers a thing; system sans for what explains it.",
+          "section": "typography"
+        },
+        {
+          "name": "The Stacked Sheets Rule",
+          "body": "Depth comes only from overlapping outlined sheets. No box-shadow, blur or glow on the hub.",
+          "section": "elevation"
+        }
+      ],
+      "dos": [
+        "Do draw every edge with the 3px ink line and keep corners at 3 to 6px (tabs 14px on top only).",
+        "Do use Stamp Red solely for the Open action.",
+        "Do set brand, tabs, tool names and the stamp in Special Elite; body prose in system sans.",
+        "Do add a new tool as another tab, folder panel and drawn miniature; let tabs wrap.",
+        "Do build depth only by stacking outlined sheets.",
+        "Do keep a depicted app's colors and fonts inside its miniature; hub chrome stays on hub tokens."
+      ],
+      "donts": [
+        "Don't replace the drawer with an equal grid of icon cards.",
+        "Don't add shadows, gradients or glow to the hub.",
+        "Don't use red for anything but Open, or introduce a second accent.",
+        "Don't use screenshots or live embeds as previews; draw miniatures (HTML/CSS or canvas with the tool's real assets).",
+        "Don't carry the Planner's green grid or orange accent into hub chrome."
+      ]
+    }
+  }
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planner | TR Tools</title>
+  <link rel="stylesheet" href="../../shared/css/base.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="tracker">
+  <header class="tracker-header">
+    <div class="tracker-title">
+      <a class="back-link" href="../../index.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> TR Tools</a>
+      <h1>Planner</h1>
+    </div>
+    <div class="headline" aria-live="polite">
+      <span class="headline-value" id="headline-value">No data</span>
+      <span class="headline-note" id="headline-note">Paint some days</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- ── Toolbar ─────────────────────────────────────────────────────── -->
+    <section class="toolbar" aria-label="Controls">
+      <div class="tool-group">
+        <h2 class="tool-title">Requirement</h2>
+        <div class="req-toggle">
+          <button class="req-btn" data-req="3" type="button">3 days</button>
+          <button class="req-btn" data-req="4" type="button">4 days</button>
+        </div>
+      </div>
+
+      <div class="tool-group">
+        <div class="paint-mode-header">
+          <h2 class="tool-title" id="paint-mode-title">Paint mode</h2>
+        </div>
+        <div class="paint-options">
+          <button class="paint-btn" data-status="in-office" type="button">In Office</button>
+          <button class="paint-btn" data-status="remote"    type="button">Remote</button>
+          <button class="paint-btn" data-status="ooo"       type="button">OOO</button>
+          <button class="paint-btn" data-status="holiday"   type="button">Holiday</button>
+          <button class="paint-btn paint-btn--eraser" data-status="none" type="button" aria-label="Eraser">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20H8l-4.3-4.3a1 1 0 0 1 0-1.4L14.3 3.7a1 1 0 0 1 1.4 0l5 5a1 1 0 0 1 0 1.4L12 18.8"/><path d="M8 20l-4-4"/></svg>
+          </button>
+        </div>
+        <p class="paint-hint" id="paint-hint" hidden></p>
+      </div>
+
+      <div class="tool-group tool-group--stats">
+        <div class="section-title-row">
+          <h2 class="tool-title">This month</h2>
+          <div class="info-icon" tabindex="0" role="note" data-tooltip="OOO days should be used for Sick days, Vacation Days, and Work from Anywhere days.">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4"/>
+              <path d="M12 8h.01"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-list">
+          <div class="stat-row"><span class="stat-dot dot-in-office"></span><span class="stat-name">In office</span><span class="stat-value" id="stat-in-office">0</span></div>
+          <div class="stat-row"><span class="stat-dot dot-remote"></span><span class="stat-name">Remote</span><span class="stat-value" id="stat-remote">0</span></div>
+          <div class="stat-row"><span class="stat-dot dot-ooo"></span><span class="stat-name">OOO</span><span class="stat-value" id="stat-ooo">0</span></div>
+          <div class="stat-row"><span class="stat-dot dot-holiday"></span><span class="stat-name">Holiday</span><span class="stat-value" id="stat-holiday">0</span></div>
+        </div>
+        <div class="stat-summary">
+          <span class="stat-name">Target <b class="stat-value" id="stat-target">60% of days</b></span>
+          <span class="badge badge-neutral" id="stat-status-badge">No data</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="workspace">
+      <!-- ── Calendar ────────────────────────────────────────────────── -->
+      <section class="calendar-card" id="calendar-card" aria-label="Calendar">
+        <div class="calendar-nav">
+          <button id="btn-prev" type="button" class="nav-btn" aria-label="Previous month"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <span id="month-label" class="month-label"></span>
+          <button id="btn-next" type="button" class="nav-btn" aria-label="Next month"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+
+        <div class="day-name-row">
+          <span>Mon</span>
+          <span>Tue</span>
+          <span>Wed</span>
+          <span>Thu</span>
+          <span>Fri</span>
+        </div>
+
+        <div id="calendar-grid" class="calendar-grid"></div>
+
+        <div class="calendar-actions">
+          <div class="import-group">
+            <button id="btn-import-holidays" type="button" class="import-holidays-btn">Import holidays</button>
+            <p class="import-note">*Next year holiday data may not be accurate.</p>
+          </div>
+          <button id="btn-clear-month"     type="button" class="clear-month-btn">Clear month</button>
+        </div>
+      </section>
+
+      <!-- ── Notes & plan ────────────────────────────────────────────── -->
+      <aside class="plan-panel" aria-label="Notes and plan">
+        <h2 class="plan-title" id="plan-title">Notes</h2>
+
+        <label class="plan-label" for="month-notes">Scratchpad</label>
+        <textarea id="month-notes" class="plan-notes" rows="7" placeholder="Jot anything for this month&hellip;"></textarea>
+
+        <h3 class="plan-label">To-dos</h3>
+        <ul id="todo-list" class="todo-list"></ul>
+        <form id="todo-form" class="todo-form" autocomplete="off">
+          <label class="visually-hidden" for="todo-input">New to-do</label>
+          <input id="todo-input" class="todo-input" type="text" maxlength="120" placeholder="Add a to-do" />
+          <button class="todo-add" type="submit">Add</button>
+        </form>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Sticky note editor -->
+  <dialog class="note-dialog" id="note-dialog" aria-labelledby="note-title">
+    <form method="dialog" class="sticky" id="note-form">
+      <span class="sticky-tape" aria-hidden="true"></span>
+      <h2 class="sticky-title" id="note-title">Note</h2>
+      <label class="visually-hidden" for="note-text">Note text</label>
+      <textarea id="note-text" class="sticky-text" rows="7" maxlength="300" placeholder="Write a note for this day&hellip;"></textarea>
+      <div class="sticky-actions">
+        <button type="button" class="sticky-delete" id="note-delete">Delete note</button>
+        <button type="submit" class="sticky-done">Done</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

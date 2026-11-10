@@ -15,4 +15,19 @@ export const HOLIDAYS = {
     { date: '2026-11-27', name: 'Day After Thanksgiving'    },
     { date: '2026-12-25', name: 'Christmas Day'             },
   ],
+  2027: [
+    { date: '2027-01-01', name: "New Year's Day"            },
+    { date: '2027-01-18', name: 'MLK Day'                   },
+    { date: '2027-02-15', name: "Presidents' Day"           },
+    { date: '2027-05-21', name: 'Mental Health Day*'        },
+    { date: '2027-05-31', name: 'Memorial Day'              },
+    { date: '2027-06-18', name: 'Juneteenth'                },
+    { date: '2027-07-05', name: 'Independence Day'          },
+    { date: '2027-09-06', name: 'Labor Day'                 },
+    { date: '2027-10-08', name: 'Mental Health Day*'        },
+    { date: '2027-11-25', name: 'Thanksgiving'              },
+    { date: '2027-11-26', name: 'Day After Thanksgiving'    },
+    { date: '2027-12-24', name: 'Christmas Day'             },
+    { date: '2027-12-31', name: "New Year's Day*"           },
+  ]
 };

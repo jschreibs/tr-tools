@@ -6,8 +6,8 @@ A collection of simple browser-based utilities. Live @ https://jschreibs.github.
 
 | App | Description |
 |-----|-------------|
-| [Attendance Tracker](apps/attendanceTracker/) | Calculate how many in-office days you need to meet TR requirements |
-| [Randomizer](apps/sprintRandomizer/) | Race your coworkers with 8-bit characters. Fun randomization tool. |
+| [Planner](apps/planner/) | Calculate how many in-office days you need to meet TR requirements |
+| [Race The Coco](apps/raceTheCoco/) | Race your coworkers with 8-bit characters. Fun randomization tool. |
 
 ## Adding a new app
 
