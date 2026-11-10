@@ -13,7 +13,7 @@ Mode: Operate. Audience: TR coworkers on desktop, checking "am I on track?" and 
 
 THESIS: A printed cubicle wall planner you can write on. It refuses the soft rounded SaaS calendar (pale pastel cells, gray hairlines) in favor of heavy ruled lines, solid color stickers and a weekly tally.
 
-OWN-WORLD: Warm paper ground (#fafaf5), forest green #1d4b34 as the header and ink-rule color, orange #d64000 as the single accent (today, active paint tool, Holiday). Heavy 3px ruled grid, square-cornered cells, solid status tags (In Office solid green, Remote tinted teal, OOO plum, Holiday orange), bold system sans at 800, tabular numerals everywhere.
+OWN-WORLD: Warm paper ground (#fafaf5), forest green #1d4b34 as the header and ink-rule color, orange #d64000 as the single accent (today, active paint tool, Holiday). Heavy 3px ruled grid, square-cornered cells, solid status tags (In Office solid green, Remote tinted blue, OOO yellow, Holiday orange), bold system sans at 800, tabular numerals everywhere.
 
 STORY: The visitor sees at once whether this month is on track, paints days like marking a planner, and jots notes beside the dates without leaving the page.
 

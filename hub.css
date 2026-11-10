@@ -280,8 +280,8 @@ main {
 
 .mini-grid i:not(.in):not(.ooo):not(.hol):not(.rem) { background: #fff; color: var(--ink); }
 .mini-grid .in    { background: #1d4b34; }
-.mini-grid .rem   { background: #d3ebe6; color: #14574d; }
-.mini-grid .ooo   { background: #6d4c9f; }
+.mini-grid .rem   { background: #2a5b8c; }
+.mini-grid .ooo   { background: #f2c230; color: var(--ink); }
 .mini-grid .hol   { background: #d64000; }
 .mini-grid .today { box-shadow: inset 0 0 0 3px #d64000; }
 

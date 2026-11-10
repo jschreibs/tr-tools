@@ -9,8 +9,8 @@ export const STATUS = Object.freeze({
 export const STATUS_META = Object.freeze({
   [STATUS.NONE]:      { label: 'Clear',     bg: null,      fg: '#4d5a52' },
   [STATUS.IN_OFFICE]: { label: 'In Office', bg: '#1d4b34', fg: '#ffffff' },
-  [STATUS.REMOTE]:    { label: 'Remote',    bg: '#d3ebe6', fg: '#14574d' },
-  [STATUS.OOO]:       { label: 'OOO',       bg: '#6d4c9f', fg: '#ffffff' },
+  [STATUS.REMOTE]:    { label: 'Remote',    bg: '#2a5b8c', fg: '#ffffff' },
+  [STATUS.OOO]:       { label: 'OOO',       bg: '#f2c230', fg: '#14281e' },
   [STATUS.HOLIDAY]:   { label: 'Holiday',   bg: '#d64000', fg: '#ffffff' },
 });
 

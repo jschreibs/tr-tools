@@ -18,9 +18,9 @@
   --green:     #1d4b34;
   --orange:    #d64000;
   --orange-bg: #fff1e6;
-  --remote-bg: #d3ebe6;
-  --remote-fg: #14574d;
-  --ooo:       #6d4c9f;
+  --remote-bg: #dde9f5;
+  --remote-fg: #2a5b8c;
+  --ooo:       #f2c230;
   --rule:      3px solid var(--green);
   --hair:      1px solid #1d4b3440;
   --ease:      cubic-bezier(0.22, 1, 0.36, 1);
@@ -176,8 +176,8 @@ body.tracker main {
 }
 
 .paint-btn[data-status="in-office"].active { background: var(--green);     border-color: var(--green);     color: #fff; }
-.paint-btn[data-status="remote"].active    { background: var(--remote-bg); border-color: var(--remote-fg); color: var(--remote-fg); }
-.paint-btn[data-status="ooo"].active       { background: var(--ooo);       border-color: var(--ooo);       color: #fff; }
+.paint-btn[data-status="remote"].active    { background: var(--remote-fg);  border-color: var(--remote-fg); color: #fff; }
+.paint-btn[data-status="ooo"].active       { background: var(--ooo);       border-color: var(--ooo);       color: var(--ink); }
 .paint-btn[data-status="holiday"].active   { background: var(--orange);    border-color: var(--orange);    color: #fff; }
 .paint-btn--eraser.active                  { background: var(--ink);       border-color: var(--ink);       color: #fff; }
 
@@ -259,7 +259,7 @@ body.tracker main {
 }
 
 .dot-in-office { background: var(--green); }
-.dot-remote    { background: var(--remote-bg); box-shadow: inset 0 0 0 2px var(--remote-fg); }
+.dot-remote    { background: var(--remote-fg); }
 .dot-ooo       { background: var(--ooo); }
 .dot-holiday   { background: var(--orange); }
 
@@ -405,7 +405,7 @@ body.tracker main {
   border: 0;
   border-radius: 50%;
   background: none;
-  color: var(--orange);
+  color: var(--ink);
   cursor: pointer;
   transition: background 0.15s var(--ease), color 0.15s var(--ease);
 }
@@ -429,6 +429,16 @@ body.tracker main {
 
 .today { background: var(--orange-bg); }
 .today .day-num { background: var(--orange); color: #fff; }
+
+/* Light tint of each status across the whole day (after the hover rules so it wins) */
+.day-cell[data-status="in-office"]                { background: #ebf5e6; }
+.day-cell[data-status="in-office"]:hover          { background: #dcedd4; }
+.day-cell[data-status="remote"]                   { background: #e6eff9; }
+.day-cell[data-status="remote"]:hover             { background: #d3e3f3; }
+.day-cell[data-status="ooo"]                      { background: #fcf3cf; }
+.day-cell[data-status="ooo"]:hover                { background: #f8e7a6; }
+.day-cell[data-status="holiday"]                  { background: #fbdec9; }
+.day-cell[data-status="holiday"]:hover            { background: #f9ceb1; }
 
 /* Status sticker */
 
@@ -454,9 +464,15 @@ body.tracker main {
 }
 
 .day-cell[data-status="in-office"] .day-status-label { background: var(--green);     color: #fff; }
-.day-cell[data-status="remote"]    .day-status-label { background: var(--remote-bg); color: var(--remote-fg); box-shadow: inset 0 0 0 1.5px var(--remote-fg); }
-.day-cell[data-status="ooo"]       .day-status-label { background: var(--ooo);       color: #fff; }
+.day-cell[data-status="remote"]    .day-status-label { background: var(--remote-fg); color: #fff; }
+.day-cell[data-status="ooo"]       .day-status-label { background: var(--ooo);       color: var(--ink); }
 .day-cell[data-status="holiday"]   .day-status-label { background: var(--orange);    color: #fff; }
+
+/* Days outside the month: plain grey, no status tint, sticker hidden */
+.day-cell.out-of-month[data-status],
+.day-cell.out-of-month[data-status]:hover { background: var(--paper-2); }
+.day-cell.out-of-month .day-status-label  { display: none; }
+
 
 /* Note preview inside a day */
 

@@ -10,9 +10,9 @@ colors:
   green-deep: "#163a29"
   orange: "#d64000"
   orange-bg: "#fff1e6"
-  remote-bg: "#d3ebe6"
-  remote-fg: "#14574d"
-  ooo: "#6d4c9f"
+  remote-bg: "#2a5b8c"
+  remote-fg: "#ffffff"
+  ooo: "#f2c230"
   danger: "#9c2b1b"
   sticky-peach: "#ffb27a"
   sticky-ink: "#2b1608"
@@ -134,7 +134,7 @@ components:
     rounded: "{rounded.sm}"
   status-ooo:
     backgroundColor: "{colors.ooo}"
-    textColor: "#ffffff"
+    textColor: "#14281e"
     rounded: "{rounded.sm}"
   status-holiday:
     backgroundColor: "{colors.orange}"
@@ -230,8 +230,8 @@ Warm paper and green ink, with a single orange and a fixed set of status colors.
 - **Orange Wash** (`orange-bg`): the background of today's cell.
 
 ### Tertiary (status colors)
-- **Remote Teal** (`remote-bg` fill, `remote-fg` text and 1.5-2px inset outline): Remote status.
-- **Plum** (`ooo`): Out of Office status.
+- **Remote Blue** (`remote-bg` fill, white text): Remote status.
+- **Yellow** (`ooo`): Out of Office status.
 
 ### Neutral
 - **Warm Paper** (`paper`): page, cells, panels, popovers.
@@ -243,8 +243,8 @@ Warm paper and green ink, with a single orange and a fixed set of status colors.
 
 ### Named Rules
 **The One Accent Rule.** Orange marks what is live or noted. It is never decoration and never a second brand color.
-**The Solid Sticker Rule.** Status is a solid fill with white text; the only exception is Remote's tinted teal with an inset outline. No pastel cell washes.
-**The Status Palette Rule.** In Office green, Remote teal, OOO plum, Holiday orange are fixed, identical across legend dots, paint tools and day stickers.
+**The Solid Sticker Rule.** Status is a solid fill with white text; the only exception is Out of Office yellow, which takes dark ink text.
+**The Status Palette Rule.** In Office green, Remote blue, OOO yellow, Holiday orange are fixed, identical across legend dots, paint tools and day stickers.
 
 ## Typography
 
@@ -307,7 +307,7 @@ Square-cornered: 3px radius on buttons, inputs, stickers, badges, popovers, tool
 ### Buttons
 - **Shape:** 3px radius, 2px green border, 0.85rem weight 700.
 - **Outline (default):** paper fill, green text, `0.5rem 0.9rem`; hover fills Shadow Paper. Used for requirement, paint tools, import holidays, nav arrows (2.25rem square).
-- **Active:** green fill, white text. Paint tools take their status color when active (Remote teal, OOO plum, Holiday orange, Eraser ink).
+- **Active:** green fill, white text. Paint tools take their status color when active (Remote blue, OOO yellow, Holiday orange, Eraser ink).
 - **Solid:** green fill, white text (Add, Done); hover Deep Green.
 - **Danger:** outline in Stamp Red with a pale red hover; confirm is filled red.
 - **Focus:** 3px orange outline, 2px offset, everywhere.

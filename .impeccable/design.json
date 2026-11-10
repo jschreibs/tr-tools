@@ -126,27 +126,27 @@
       },
       "remote-bg": {
         "role": "tertiary",
-        "displayName": "Remote Teal Tint",
-        "canonical": "#d3ebe6",
+        "displayName": "Remote Blue Tint",
+        "canonical": "#dde9f5",
         "tonalRamp": [
           "#0e3a34",
-          "#14574d",
+          "#2a5b8c",
           "#3a8377",
           "#68a99e",
           "#93c6bd",
           "#b5d9d2",
-          "#d3ebe6",
+          "#dde9f5",
           "#eef7f5"
         ]
       },
       "remote-fg": {
         "role": "tertiary",
-        "displayName": "Remote Teal",
-        "canonical": "#14574d",
+        "displayName": "Remote Blue",
+        "canonical": "#2a5b8c",
         "tonalRamp": [
           "#062520",
           "#0c3b34",
-          "#14574d",
+          "#2a5b8c",
           "#237a6d",
           "#3f9c8f",
           "#72bdb1",
@@ -156,13 +156,13 @@
       },
       "ooo": {
         "role": "tertiary",
-        "displayName": "Plum",
-        "canonical": "#6d4c9f",
+        "displayName": "Yellow",
+        "canonical": "#f2c230",
         "tonalRamp": [
           "#251a38",
           "#3d2a5e",
           "#573c82",
-          "#6d4c9f",
+          "#f2c230",
           "#8b6bb8",
           "#aa90ce",
           "#cbb9e2",
@@ -435,7 +435,7 @@
       },
       {
         "name": "remote-inset-outline",
-        "value": "inset 0 0 0 1.5px #14574d",
+        "value": "inset 0 0 0 1.5px #2a5b8c",
         "purpose": "Outlines the tinted Remote sticker and legend dot."
       }
     ],
@@ -543,7 +543,7 @@
       "refersTo": "status-in-office",
       "description": "Solid status tags on day cells; Remote is the tinted exception with an inset outline.",
       "html": "<span class=\"ds-tag ds-in\">In Office</span> <span class=\"ds-tag ds-remote\">Remote</span> <span class=\"ds-tag ds-ooo\">OOO</span> <span class=\"ds-tag ds-hol\">Holiday</span>",
-      "css": ".ds-tag { display: inline-block; font-size: 0.75rem; font-weight: 800; line-height: 1; padding: 0.3rem 0.5rem; border-radius: 3px; margin-right: 0.35rem; } .ds-in { background: #1d4b34; color: #fff; } .ds-remote { background: #d3ebe6; color: #14574d; box-shadow: inset 0 0 0 1.5px #14574d; } .ds-ooo { background: #6d4c9f; color: #fff; } .ds-hol { background: #d64000; color: #fff; }"
+      "css": ".ds-tag { display: inline-block; font-size: 0.75rem; font-weight: 800; line-height: 1; padding: 0.3rem 0.5rem; border-radius: 3px; margin-right: 0.35rem; } .ds-in { background: #1d4b34; color: #fff; } .ds-remote { background: #dde9f5; color: #2a5b8c; box-shadow: inset 0 0 0 1.5px #2a5b8c; } .ds-ooo { background: #f2c230; color: #fff; } .ds-hol { background: #d64000; color: #fff; }"
     },
     {
       "name": "Day Cell",
@@ -645,12 +645,12 @@
       },
       {
         "name": "The Solid Sticker Rule",
-        "body": "Status is a solid fill with white text; the only exception is Remote's tinted teal with an inset outline. No pastel cell washes.",
+        "body": "Status is a solid fill with white text; the only exception is Remote's tinted blue with an inset outline. No pastel cell washes.",
         "section": "colors"
       },
       {
         "name": "The Status Palette Rule",
-        "body": "In Office green, Remote teal, OOO plum, Holiday orange are fixed, identical across legend dots, paint tools and day stickers.",
+        "body": "In Office green, Remote blue, OOO yellow, Holiday orange are fixed, identical across legend dots, paint tools and day stickers.",
         "section": "colors"
       },
       {
