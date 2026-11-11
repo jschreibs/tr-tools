@@ -1,0 +1,16 @@
+{
+  "name": "tr-tools",
+  "private": true,
+  "description": "Dev tooling only. The site itself is plain static files with no build step.",
+  "scripts": {
+    "start": "serve -l 4173 .",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "serve": "^14.2.7"
+  }
+}

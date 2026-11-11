@@ -11,7 +11,8 @@ tr-tools/
 ├── shared/
 │   └── css/
 │       └── base.css       # Shared base styles, imported by every app
-├── .github/               # Issue & PR templates
+├── tests/                 # Playwright browser tests (hub, planner, race)
+├── .github/               # Issue & PR templates, CI workflow
 ├── index.html             # Landing page / app hub
 └── CLAUDE.md
 ```
@@ -19,7 +20,8 @@ tr-tools/
 ## Conventions
 - Each app lives in `apps/<appName>/` and contains its own `index.html`, `style.css`, and `app.js`.
 - All apps import `../../shared/css/base.css` before their own stylesheet.
-- No external dependencies unless explicitly approved. Prefer vanilla JS.
+- No external runtime dependencies unless explicitly approved. Prefer vanilla JS. `package.json` is for dev tooling only (Playwright, serve); nothing in it ships with the site.
+- Run `npm test` before finishing a change. Update or add tests in `tests/` when behaviour changes.
 - Keep HTML semantic. Avoid inline styles.
 - App entry points link back to the root `index.html` via the header.
 
