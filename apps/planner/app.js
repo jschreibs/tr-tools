@@ -1,4 +1,7 @@
-import { STATUS, STATUS_META, REQUIREMENTS, STORAGE_KEYS } from './constants.js';
+import {
+  STATUS, STATUS_META, OOO_TYPES, WEEKLY_TYPES, HOURS_PER_DAY, BALANCES,
+  REQUIREMENTS, STORAGE_KEYS,
+} from './constants.js';
 import { HOLIDAYS } from './holidays.js';
 
 // Flat map of date key → holiday name, built from all years in HOLIDAYS
@@ -18,10 +21,21 @@ const state = {
   days:             loadDays(),
   notes:            loadJSON(STORAGE_KEYS.NOTES),
   plan:             loadJSON(STORAGE_KEYS.PLAN),
+  adjust:           loadJSON(STORAGE_KEYS.ADJUST),
+  editBalances:     false,
   activePopoverKey: null,
-  paintStatus:      null,  // STATUS.* when paint mode is on
+  paintStatus:      null,  // STATUS.* or 'ooo' (group) when paint mode is on
+  oooType:          STATUS.VACATION, // which OOO type the OOO tool paints
   isPainting:       false,
+  strokeStart:      null,  // copy of state.days when the current paint stroke began
+  undoStack:        [],    // paint strokes: { before, after } maps of changed day keys
+  redoStack:        [],
 };
+
+const isWeekly = s => WEEKLY_TYPES.includes(s);
+const isOOO    = s => OOO_TYPES.includes(s);
+// The status the active paint tool actually writes
+const paintTarget = () => state.paintStatus === 'ooo' ? state.oooType : state.paintStatus;
 
 // ─── Persistence ──────────────────────────────────────────────────────────────
 
@@ -30,7 +44,16 @@ function loadJSON(storageKey) {
   catch { return {}; }
 }
 
-function loadDays() { return loadJSON(STORAGE_KEYS.DAYS); }
+function loadDays() {
+  const days = loadJSON(STORAGE_KEYS.DAYS);
+  // Legacy generic "ooo" days become Vacation
+  let migrated = false;
+  for (const [key, s] of Object.entries(days)) {
+    if (s === 'ooo') { days[key] = STATUS.VACATION; migrated = true; }
+  }
+  if (migrated) localStorage.setItem(STORAGE_KEYS.DAYS, JSON.stringify(days));
+  return days;
+}
 
 function loadRequirement() {
   const v = parseInt(localStorage.getItem(STORAGE_KEYS.REQUIREMENT), 10);
@@ -40,6 +63,7 @@ function loadRequirement() {
 function saveDays()        { localStorage.setItem(STORAGE_KEYS.DAYS,        JSON.stringify(state.days)); }
 function saveRequirement() { localStorage.setItem(STORAGE_KEYS.REQUIREMENT, String(state.requirement)); }
 function saveNotes()       { localStorage.setItem(STORAGE_KEYS.NOTES,       JSON.stringify(state.notes)); }
+function saveAdjust()      { localStorage.setItem(STORAGE_KEYS.ADJUST,      JSON.stringify(state.adjust)); }
 function savePlan()        { localStorage.setItem(STORAGE_KEYS.PLAN,        JSON.stringify(state.plan)); }
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────
@@ -52,20 +76,25 @@ function toKey(date) {
 }
 
 /**
- * Returns weeks (arrays of 5 Date objects, Mon–Fri) covering the given month.
+ * Returns exactly 5 weeks (arrays of 5 Date objects, Mon–Fri) for the given month.
  * Leading/trailing days from adjacent months are included to fill partial weeks.
  */
 function getCalendarWeeks(year, month) {
   const firstDay = new Date(year, month, 1);
   const lastDay  = new Date(year, month + 1, 0);
 
-  // Rewind to the Monday on or before the 1st
+  // Start on the Monday of the first weekday's week. If the 1st is a Sat/Sun, the
+  // month's first weekday is the next Monday, so don't show the (empty) prior week.
   const cur = new Date(firstDay);
   const dow = firstDay.getDay(); // 0 = Sun
-  cur.setDate(firstDay.getDate() - (dow === 0 ? 6 : dow - 1));
+  if      (dow === 6) cur.setDate(firstDay.getDate() + 2);
+  else if (dow === 0) cur.setDate(firstDay.getDate() + 1);
+  else                cur.setDate(firstDay.getDate() - (dow - 1));
 
+  // Always 5 rows. A month never needs 6 (Mon–Fri weeks), but a 28-day February that
+  // starts on a Monday only fills 4, so pad with the following week (shown greyed).
   const weeks = [];
-  while (cur <= lastDay) {
+  while (cur <= lastDay || weeks.length < 5) {
     const week = [];
     for (let i = 0; i < 5; i++) {
       week.push(new Date(cur));
@@ -77,13 +106,51 @@ function getCalendarWeeks(year, month) {
   return weeks;
 }
 
+/** Mon–Fri keys of the week containing the given 'YYYY-MM-DD' key. */
+function weekKeys(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  const dow  = date.getDay(); // 0 = Sun
+  date.setDate(date.getDate() - (dow === 0 ? 6 : dow - 1));
+  const keys = [];
+  for (let i = 0; i < 5; i++) {
+    keys.push(toKey(date));
+    date.setDate(date.getDate() + 1);
+  }
+  return keys;
+}
+
 // ─── Stats ────────────────────────────────────────────────────────────────────
+
+function computeBalances(year) {
+  const hours = {};            // daily type → hours used
+  const weeks = {};            // weekly type → Set of Monday keys
+  // Types that also count earlier years (parental: 1 back, sabbatical: 4 back)
+  const lookback = new Map(BALANCES.filter(b => b.lookbackYears).map(b => [b.status, b.lookbackYears]));
+  for (const [key, s] of Object.entries(state.days)) {
+    if (isWeekly(s)) {
+      // A week counts once (even if a holiday sits inside it), by the year of its Monday
+      const monday = weekKeys(key)[0];
+      const mondayYear = Number(monday.slice(0, 4));
+      const oldest = year - (lookback.get(s) ?? 0);
+      if (mondayYear > year || mondayYear < oldest) continue;
+      (weeks[s] ??= new Set()).add(monday);
+    } else if (isOOO(s) && key.startsWith(`${year}-`)) {
+      hours[s] = (hours[s] ?? 0) + HOURS_PER_DAY;
+    }
+  }
+  return BALANCES.map(b => {
+    if (b.unit !== 'hours') return { ...b, used: weeks[b.status]?.size ?? 0 };
+    const added = state.adjust[year]?.[b.status] ?? 0;
+    return { ...b, added, used: Math.max(0, (hours[b.status] ?? 0) + added) };
+  });
+}
 
 function computeStats() {
   const { year, month, requirement } = state;
   const weeks = getCalendarWeeks(year, month);
 
-  let totalInOffice = 0, totalRemote = 0, totalOOO = 0, totalHoliday = 0;
+  let totalInOffice = 0, totalRemote = 0, totalOOO = 0, totalHoliday = 0, totalWFA = 0, totalParental = 0, totalSabbatical = 0;
   let totalWorkingDays = 0; // all Mon–Fri in this month
 
   for (const week of weeks) {
@@ -93,16 +160,20 @@ function computeStats() {
       const s = state.days[toKey(date)];
       if      (s === STATUS.IN_OFFICE) { totalInOffice++; }
       else if (s === STATUS.REMOTE)    { totalRemote++;   }
-      else if (s === STATUS.OOO)       { totalOOO++;      }
+      else if (isOOO(s))               { totalOOO++;      }
       else if (s === STATUS.HOLIDAY)   { totalHoliday++;  }
+      else if (s === STATUS.WFA)       { totalWFA++;      }
+      else if (s === STATUS.PARENTAL)    { totalParental++;   }
+      else if (s === STATUS.SABBATICAL)  { totalSabbatical++; }
     }
   }
 
   // Threshold: requirement days out of 5 (e.g. 3 days → 60%, 4 days → 80%)
   const threshold   = requirement / 5;
   const hasData     = totalInOffice + totalRemote > 0;
-  // Holidays and OOO don't count against the denominator
-  const effectiveDays = totalWorkingDays - totalOOO - totalHoliday;
+  // Holidays, OOO types and WFA don't count against the denominator
+  // (parental leave and sabbatical do)
+  const effectiveDays = totalWorkingDays - totalOOO - totalHoliday - totalWFA;
 
   // Percentage of working days spent in-office
   const avg     = hasData ? (totalInOffice / effectiveDays) * 100 : null;
@@ -113,6 +184,9 @@ function computeStats() {
     remote:   totalRemote,
     ooo:      totalOOO,
     holiday:  totalHoliday,
+    wfa:      totalWFA,
+    parental:   totalParental,
+    sabbatical: totalSabbatical,
     avg,
     onTrack,
   };
@@ -141,13 +215,58 @@ function renderTools() {
     btn.classList.toggle('active', btn.dataset.status === state.paintStatus);
   });
   document.getElementById('calendar-card').classList.toggle('paint-mode', active);
-  document.getElementById('paint-mode-title').classList.toggle('rainbow', active);
+  renderHeadline(computeStats());
+
+  // OOO type picker: space is always reserved, only visible while OOO is active
+  const picker = document.getElementById('ooo-types');
+  picker.classList.toggle('is-visible', state.paintStatus === 'ooo');
+  picker.querySelectorAll('.ooo-type-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.type === state.oooType);
+    btn.tabIndex = state.paintStatus === 'ooo' ? 0 : -1;
+  });
+
+  // Undo / redo only appear when there is something to undo / redo
+  // When only redo exists, undo keeps its slot (invisible) so redo doesn't shift left
+  const canUndo = state.undoStack.length > 0;
+  const canRedo = state.redoStack.length > 0;
+  const undoBtn = document.getElementById('btn-undo');
+  undoBtn.hidden = !canUndo && !canRedo;
+  undoBtn.classList.toggle('placeholder', !canUndo && canRedo);
+  document.getElementById('btn-redo').hidden = !canRedo;
 
   const hint = document.getElementById('paint-hint');
-  hint.hidden = !active;
-  if (active) {
-    hint.textContent = `Click or drag across days. Click the tool again to stop.`;
+  if (!active)                              hint.textContent = '';
+  else if (isWeekly(state.paintStatus))     hint.textContent = 'Click any day to fill its whole week (holidays are kept). Click the tool again to stop.';
+  else                                      hint.textContent = 'Click or drag across days. Click the tool again to stop.';
+}
+
+// Header status indicator: paint mode (rainbow) wins over behind (orange)
+function renderHeadline(stats) {
+  const target = `${(state.requirement / 5 * 100).toFixed(0)}%`;
+  const status = stats.avg === null ? 'Paint some days'
+               : stats.onTrack      ? 'On track'
+               :                      'Behind';
+  const painting = !!state.paintStatus;
+
+  document.getElementById('headline-value').textContent =
+    stats.avg !== null ? `${stats.avg.toFixed(1)}%` : 'No data';
+  document.getElementById('headline-note').textContent =
+    `${status}. Target ${target} of days`;
+
+  // Centered header label while a paint tool is active
+  const mode   = document.getElementById('header-mode');
+  const target_ = paintTarget();
+  mode.hidden  = !painting;
+  if (painting) {
+    mode.textContent = target_ === STATUS.NONE
+      ? 'Erasing'
+      : `Painting - ${STATUS_META[target_].label}`;
   }
+
+  const header = document.querySelector('.tracker-header');
+  if (painting)                                   header.dataset.state = 'paint';
+  else if (stats.avg !== null && !stats.onTrack)  header.dataset.state = 'behind';
+  else                                            delete header.dataset.state;
 }
 
 function renderSidebar() {
@@ -163,14 +282,16 @@ function renderSidebar() {
   document.getElementById('stat-remote').textContent    = stats.remote;
   document.getElementById('stat-ooo').textContent       = stats.ooo;
   document.getElementById('stat-holiday').textContent   = stats.holiday;
+  document.getElementById('stat-wfa').textContent       = stats.wfa;
+  // Parental / Sabbatical rows appear only once there is a yearly balance for them
+  const yearly = computeBalances(state.year);
+  for (const s of [STATUS.PARENTAL, STATUS.SABBATICAL]) {
+    document.getElementById(`row-${s}`).hidden = !(yearly.find(b => b.status === s)?.used > 0);
+    document.getElementById(`stat-${s}`).textContent = stats[s];
+  }
+  renderBalances();
 
-  const target = `${(state.requirement / 5 * 100).toFixed(0)}%`;
-  document.getElementById('headline-value').textContent =
-    stats.avg !== null ? `${stats.avg.toFixed(1)}%` : 'No data';
-  document.getElementById('headline-note').textContent =
-    stats.avg === null ? `Paint some days. Target ${target} of days`
-    : stats.onTrack    ? `On track. Target ${target} of days`
-    :                    `Behind. Target ${target} of days`;
+  renderHeadline(stats);
 
   const badge = document.getElementById('stat-status-badge');
   if (stats.avg === null) {
@@ -185,17 +306,131 @@ function renderSidebar() {
   }
 }
 
+// Days by default; hours only when they don't divide evenly into days
+function fmtDur(hours) {
+  const h    = Math.abs(hours);
+  const days = Math.floor(h / HOURS_PER_DAY);
+  const rem  = h % HOURS_PER_DAY;
+  const parts = [];
+  if (days || !rem) parts.push(`${days} ${days === 1 ? 'day' : 'days'}`);
+  if (rem)          parts.push(`${rem} ${rem === 1 ? 'hour' : 'hours'}`);
+  return parts.join(', ');
+}
+
+function adjustBalance(status, deltaHours) {
+  const y = state.year;
+  state.adjust[y] ??= {};
+  const prev = state.adjust[y][status] ?? 0;
+  const next = prev + deltaHours;
+  setAdjust(y, status, next);
+  state.undoStack.push({ before: {}, after: {}, adjust: { year: y, status, before: prev, after: next } });
+  state.redoStack = [];
+  renderBalances();
+  renderTools();
+}
+
+function setAdjust(year, status, hours) {
+  state.adjust[year] ??= {};
+  if (hours === 0) delete state.adjust[year][status];
+  else             state.adjust[year][status] = hours;
+  saveAdjust();
+}
+
+function renderBalances() {
+  document.getElementById('balances-title').textContent = `${state.year} balances`;
+  const list = document.getElementById('balances');
+  list.innerHTML = '';
+
+  for (const b of computeBalances(state.year)) {
+    // Optional types only show once used (hour-based ones also while editing, so time can be added)
+    if (!b.always && b.used === 0 && !(state.editBalances && b.unit === 'hours')) continue;
+
+    const hasMax = b.max !== undefined;
+    const row = document.createElement('div');
+    row.className = 'bal-row';
+    if (hasMax && b.used > b.max) row.classList.add('over');
+    row.dataset.status = b.status;
+
+    const head = document.createElement('div');
+    head.className = 'bal-head';
+    const name = document.createElement('span');
+    name.className   = 'bal-name';
+    name.textContent = b.name;
+    const used = document.createElement('span');
+    used.className = 'bal-used';
+    if (b.unit === 'hours') {
+      used.textContent = fmtDur(b.used);
+    } else {
+      used.textContent = `${b.used} ${b.used === 1 ? 'week' : 'weeks'}`;
+    }
+    head.append(name, used);
+    row.appendChild(head);
+
+    const subRow = document.createElement('div');
+    subRow.className = 'bal-sub-row';
+    const sub = document.createElement('div');
+    sub.className = 'bal-sub';
+    if (hasMax) {
+      const bar = document.createElement('div');
+      bar.className = 'bal-bar';
+      const fill = document.createElement('span');
+      fill.style.width = `${Math.min(100, (b.used / b.max) * 100)}%`;
+      bar.appendChild(fill);
+      row.appendChild(bar);
+
+      const left = b.max - b.used;
+      if (left < 0) {
+        sub.textContent = b.unit === 'hours'
+          ? `${fmtDur(-left)} over the max`
+          : `${-left} over the ${b.max}-week max`;
+      } else {
+        sub.textContent = b.unit === 'hours'
+          ? `${fmtDur(left)} left`
+          : `${left} of ${b.max} weeks left`;
+      }
+    } else {
+      sub.textContent = 'No maximum';
+    }
+    subRow.appendChild(sub);
+
+    if (state.editBalances && b.unit === 'hours') {
+      const added = document.createElement('div');
+      added.className   = 'bal-added';
+      added.textContent = `Added: ${b.added === 0 ? 'none' : (b.added < 0 ? '-' : '') + fmtDur(b.added)}`;
+      subRow.appendChild(added);
+    }
+    row.appendChild(subRow);
+
+    if (state.editBalances && b.unit === 'hours') {
+      const btns = document.createElement('div');
+      btns.className = 'bal-adjust';
+      const steps = [
+        ['+ Day',  HOURS_PER_DAY, `Add a day to ${b.name}`],
+        ['+ Hour', 1,             `Add an hour to ${b.name}`],
+        ['− Hour', -1,            `Subtract an hour from ${b.name}`],
+        ['− Day',  -HOURS_PER_DAY, `Subtract a day from ${b.name}`],
+      ];
+      for (const [text, delta, label] of steps) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = text;
+        btn.setAttribute('aria-label', label);
+        btn.addEventListener('click', () => adjustBalance(b.status, delta));
+        btns.appendChild(btn);
+      }
+      row.appendChild(btns);
+    }
+    list.appendChild(row);
+  }
+}
+
 const NOTE_ICON =
   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
   'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
   '<path d="M5 3h14a1 1 0 0 1 1 1v10l-6 6H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 20v-5a1 1 0 0 1 1-1h5"/></svg>';
 
-const SHORT_LABELS = {
-  [STATUS.IN_OFFICE]: 'Office',
-  [STATUS.REMOTE]:    'Remote',
-  [STATUS.OOO]:       'OOO',
-  [STATUS.HOLIDAY]:   'Holiday',
-};
+const shortLabel = status =>
+  status === STATUS.IN_OFFICE ? 'Office' : (STATUS_META[status].short ?? STATUS_META[status].label);
 
 function getDayLabel(status, key) {
   if (status === STATUS.HOLIDAY) return HOLIDAY_NAMES[key] ?? STATUS_META[status].label;
@@ -205,7 +440,7 @@ function getDayLabel(status, key) {
 function buildStatusLabel(status, key) {
   const el = document.createElement('span');
   el.className     = 'day-status-label';
-  el.dataset.short = SHORT_LABELS[status];
+  el.dataset.short = shortLabel(status);
   el.textContent   = getDayLabel(status, key);
   return el;
 }
@@ -282,11 +517,12 @@ function renderCalendarCells() {
         cell.addEventListener('mousedown', e => {
           if (!state.paintStatus) return;
           e.preventDefault(); // prevent text selection while dragging
-          state.isPainting = true;
-          applyPaint(key, cell);
+          state.isPainting  = true;
+          state.strokeStart = { ...state.days };
+          applyPaint(key);
         });
         cell.addEventListener('mouseover', () => {
-          if (state.isPainting && state.paintStatus) applyPaint(key, cell);
+          if (state.isPainting && state.paintStatus) applyPaint(key);
         });
       }
 
@@ -316,7 +552,7 @@ function openPopover(key, anchorEl) {
 
   const current = state.days[key] ?? STATUS.NONE;
 
-  for (const s of [STATUS.IN_OFFICE, STATUS.REMOTE, STATUS.OOO, STATUS.HOLIDAY, STATUS.NONE]) {
+  const makeOption = s => {
     const meta = STATUS_META[s];
     const btn  = document.createElement('button');
     btn.type      = 'button';
@@ -335,13 +571,45 @@ function openPopover(key, anchorEl) {
     label.textContent = meta.label;
     btn.appendChild(label);
 
-    if (s === STATUS.NONE && current !== STATUS.NONE) {
-      btn.classList.add('popover-clear');
-    }
+    if (s === STATUS.NONE && current !== STATUS.NONE) btn.classList.add('popover-clear');
 
     btn.addEventListener('click', () => onStatusSelect(key, s));
-    pop.appendChild(btn);
-  }
+    return btn;
+  };
+
+  // Common statuses always show; the rest sit under "More" (open by default
+  // when the day already has one of them, so the selection is never hidden)
+  const COMMON = [STATUS.IN_OFFICE, STATUS.REMOTE, STATUS.VACATION, STATUS.SICK, STATUS.HOLIDAY];
+  const MORE_DAILY = [STATUS.CAREGIVER, STATUS.BEREAVEMENT];
+  const hiddenStatuses = [...MORE_DAILY, ...WEEKLY_TYPES];
+
+  COMMON.forEach(s => pop.appendChild(makeOption(s)));
+
+  const moreBtn = document.createElement('button');
+  moreBtn.type      = 'button';
+  moreBtn.className = 'popover-more';
+  const more = document.createElement('div');
+  more.className = 'popover-more-list';
+
+  MORE_DAILY.forEach(s => more.appendChild(makeOption(s)));
+  const note = document.createElement('div');
+  note.className   = 'popover-note';
+  note.textContent = 'Sets entire week';
+  more.appendChild(note);
+  WEEKLY_TYPES.forEach(s => more.appendChild(makeOption(s)));
+
+  const setMore = open => {
+    more.hidden = !open;
+    moreBtn.setAttribute('aria-expanded', String(open));
+    moreBtn.textContent = open ? 'More ▴' : 'More ▾';
+  };
+  setMore(hiddenStatuses.includes(current));
+  moreBtn.addEventListener('click', () => {
+    setMore(more.hidden);
+    positionPopover(pop, anchorEl); // height changed: keep it on screen
+  });
+
+  pop.append(moreBtn, more, makeOption(STATUS.NONE));
 
   document.body.appendChild(pop);
   positionPopover(pop, anchorEl);
@@ -415,10 +683,15 @@ function closePopover() {
 }
 
 function onStatusSelect(key, status) {
-  if (status === STATUS.NONE) delete state.days[key];
-  else                        state.days[key] = status;
+  const before  = { ...state.days };
+  const current = state.days[key];
+  if (isWeekly(status))                                 fillWeek(key, status);          // whole week, holidays kept
+  else if (status === STATUS.NONE && isWeekly(current)) clearWeek(key, current);        // clearing a weekly day clears the week
+  else if (status === STATUS.NONE)                      delete state.days[key];
+  else                                                  state.days[key] = status;
 
   saveDays();
+  recordDayChange(before);
   closePopover();
   renderCalendarCells();
   renderSidebar();
@@ -430,41 +703,70 @@ function onStatusSelect(key, status) {
 
 // ─── Paint ────────────────────────────────────────────────────────────────────
 
-function applyPaint(key, cellEl) {
-  const status = state.paintStatus;
+// Set one day's status in state and update its cell in place (no grid rebuild)
+function setDay(key, status) {
+  const cellEl = document.querySelector(`.day-cell[data-key="${key}"]`);
 
   if (status === STATUS.NONE) {
     delete state.days[key];
-    delete cellEl.dataset.status;
-    cellEl.querySelector('.day-status-label')?.remove();
-  } else {
-    state.days[key] = status;
-    cellEl.dataset.status = status;
-
-    const prev = cellEl.querySelector('.day-status-label');
-    if (prev?.dataset.short !== SHORT_LABELS[status] || prev.textContent !== getDayLabel(status, key)) {
-      prev?.remove();
-      const labelEl = buildStatusLabel(status, key);
-      labelEl.classList.add('stamp');
-      cellEl.querySelector('.day-num').after(labelEl);
+    if (cellEl) {
+      delete cellEl.dataset.status;
+      cellEl.querySelector('.day-status-label')?.remove();
     }
+    return;
   }
 
+  state.days[key] = status;
+  if (!cellEl) return;
+  cellEl.dataset.status = status;
+
+  const prev = cellEl.querySelector('.day-status-label');
+  if (prev?.dataset.short !== shortLabel(status) || prev.textContent !== getDayLabel(status, key)) {
+    prev?.remove();
+    const labelEl = buildStatusLabel(status, key);
+    labelEl.classList.add('stamp');
+    cellEl.querySelector('.day-num').after(labelEl);
+  }
+}
+
+// Fill Mon–Fri of a week with a weekly status. Holidays are never overwritten.
+function fillWeek(anyKey, status) {
+  for (const k of weekKeys(anyKey)) {
+    if (state.days[k] === STATUS.HOLIDAY) continue;
+    setDay(k, status);
+  }
+}
+
+function clearWeek(anyKey, status) {
+  for (const k of weekKeys(anyKey)) {
+    if (state.days[k] === status) setDay(k, STATUS.NONE);
+  }
+}
+
+function applyPaint(key) {
+  const status = paintTarget();
+  const current = state.days[key];
+  if (isWeekly(status))                             fillWeek(key, status);
+  else if (status === STATUS.NONE && isWeekly(current)) clearWeek(key, current); // eraser removes the whole week
+  else                                              setDay(key, status);
   renderSidebar();
 }
 
 function clearMonth() {
+  const before = { ...state.days };
   const prefix = `${state.year}-${String(state.month + 1).padStart(2, '0')}-`;
   for (const key of Object.keys(state.days)) {
     if (key.startsWith(prefix)) delete state.days[key];
   }
   saveDays();
+  recordDayChange(before);
   renderCalendarCells();
   renderSidebar();
 }
 
 function importHolidays() {
   const holidays = HOLIDAYS[state.year] ?? [];
+  const before = { ...state.days };
   let imported = 0;
   for (const { date } of holidays) {
     if (state.days[date] !== STATUS.HOLIDAY) {
@@ -474,6 +776,7 @@ function importHolidays() {
   }
   if (imported > 0) {
     saveDays();
+    recordDayChange(before);
     renderCalendarCells();
     renderSidebar();
   }
@@ -576,6 +879,15 @@ document.getElementById('todo-form').addEventListener('submit', e => {
 
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
+  if (noteDialog.open) return; // Escape closes the note editor only
+
+  // Esc exits paint mode
+  if (state.paintStatus) {
+    state.paintStatus = null;
+    renderTools();
+    return;
+  }
+
   const key = state.activePopoverKey;
   closePopover();
   closeClearPopover();
@@ -615,6 +927,20 @@ document.querySelectorAll('.paint-btn').forEach(btn => {
     closePopover();
     renderTools();
   });
+});
+
+document.querySelectorAll('.ooo-type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.oooType = btn.dataset.type;
+    renderTools();
+  });
+});
+
+document.getElementById('btn-edit-balances').addEventListener('click', e => {
+  state.editBalances = !state.editBalances;
+  e.currentTarget.setAttribute('aria-pressed', String(state.editBalances));
+  e.currentTarget.classList.toggle('on', state.editBalances);
+  renderBalances();
 });
 
 document.getElementById('btn-import-holidays').addEventListener('click', importHolidays);
@@ -684,7 +1010,58 @@ document.addEventListener('mouseup', () => {
   if (state.isPainting) {
     state.isPainting = false;
     saveDays();
+    recordStroke();
   }
+});
+
+// ─── Undo / redo (paint strokes and manual changes) ───────────────────────────
+
+function recordStroke() {
+  const start = state.strokeStart;
+  state.strokeStart = null;
+  recordDayChange(start);
+}
+
+// Store only the days that changed since `prevDays`, so undoing never touches other edits
+function recordDayChange(prevDays) {
+  const before = {}, after = {};
+  const keys = new Set([...Object.keys(prevDays ?? {}), ...Object.keys(state.days)]);
+  for (const k of keys) {
+    if (prevDays?.[k] !== state.days[k]) {
+      before[k] = prevDays?.[k];
+      after[k]  = state.days[k];
+    }
+  }
+  if (Object.keys(after).length === 0) return;
+  state.undoStack.push({ before, after });
+  state.redoStack = [];
+  renderTools();
+}
+
+function applyHistory(entry, direction) {
+  for (const [k, s] of Object.entries(entry[direction])) {
+    if (s === undefined) delete state.days[k];
+    else                 state.days[k] = s;
+  }
+  if (entry.adjust) setAdjust(entry.adjust.year, entry.adjust.status, entry.adjust[direction]);
+  saveDays();
+  renderCalendarCells();
+  renderSidebar();
+  renderTools();
+}
+
+document.getElementById('btn-undo').addEventListener('click', () => {
+  const entry = state.undoStack.pop();
+  if (!entry) return;
+  state.redoStack.push(entry);
+  applyHistory(entry, 'before');
+});
+
+document.getElementById('btn-redo').addEventListener('click', () => {
+  const entry = state.redoStack.pop();
+  if (!entry) return;
+  state.undoStack.push(entry);
+  applyHistory(entry, 'after');
 });
 
 document.addEventListener('click', () => {

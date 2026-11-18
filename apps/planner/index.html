@@ -14,7 +14,8 @@
       <a class="back-link" href="../../index.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg> TR Tools</a>
       <h1>Planner</h1>
     </div>
-    <div class="headline" aria-live="polite">
+    <div class="header-mode" id="header-mode" aria-live="polite" hidden></div>
+    <div class="headline" id="headline" aria-live="polite">
       <span class="headline-value" id="headline-value">No data</span>
       <span class="headline-note" id="headline-note">Paint some days</span>
     </div>
@@ -23,7 +24,8 @@
   <main>
     <!-- ── Toolbar ─────────────────────────────────────────────────────── -->
     <section class="toolbar" aria-label="Controls">
-      <div class="tool-group">
+     <div class="toolbar-row">
+      <div class="tool-group tool-group--req">
         <h2 class="tool-title">Requirement</h2>
         <div class="req-toggle">
           <button class="req-btn" data-req="3" type="button">3 days</button>
@@ -31,44 +33,72 @@
         </div>
       </div>
 
-      <div class="tool-group">
-        <div class="paint-mode-header">
-          <h2 class="tool-title" id="paint-mode-title">Paint mode</h2>
+      <div class="tool-group tool-group--paint">
+        <div class="paint-sections">
+          <div class="paint-section">
+            <span class="paint-section-label">Daily</span>
+            <div class="paint-options">
+              <button class="paint-btn" data-status="in-office" type="button">In Office</button>
+              <button class="paint-btn" data-status="remote"    type="button">Remote</button>
+              <button class="paint-btn" data-status="ooo"       type="button">OOO</button>
+              <button class="paint-btn" data-status="holiday"   type="button">Holiday</button>
+            </div>
+            <div class="ooo-types" id="ooo-types" role="group" aria-label="OOO type">
+              <button class="ooo-type-btn" data-type="vacation"    type="button" tabindex="-1">Vacation</button>
+              <button class="ooo-type-btn" data-type="sick"        type="button" tabindex="-1">Sick</button>
+              <button class="ooo-type-btn" data-type="caregiver"   type="button" tabindex="-1">Caregiver</button>
+              <button class="ooo-type-btn" data-type="bereavement" type="button" tabindex="-1">Bereavement</button>
+            </div>
+          </div>
+          <div class="paint-section">
+            <span class="paint-section-label">Weekly</span>
+            <div class="paint-options">
+              <button class="paint-btn" data-status="wfa"        type="button">WFA</button>
+              <button class="paint-btn" data-status="parental"   type="button">Parental Leave</button>
+              <button class="paint-btn" data-status="sabbatical" type="button">Sabbatical</button>
+            </div>
+          </div>
+          <div class="paint-section">
+            <span class="paint-section-label">Tools</span>
+            <div class="paint-options">
+              <button class="paint-btn paint-btn--eraser" data-status="none" type="button" aria-label="Eraser">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20H8l-4.3-4.3a1 1 0 0 1 0-1.4L14.3 3.7a1 1 0 0 1 1.4 0l5 5a1 1 0 0 1 0 1.4L12 18.8"/><path d="M8 20l-4-4"/></svg>
+              </button>
+              <button class="history-btn" id="btn-undo" type="button" aria-label="Undo" hidden>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+              </button>
+              <button class="history-btn" id="btn-redo" type="button" aria-label="Redo" hidden>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="paint-options">
-          <button class="paint-btn" data-status="in-office" type="button">In Office</button>
-          <button class="paint-btn" data-status="remote"    type="button">Remote</button>
-          <button class="paint-btn" data-status="ooo"       type="button">OOO</button>
-          <button class="paint-btn" data-status="holiday"   type="button">Holiday</button>
-          <button class="paint-btn paint-btn--eraser" data-status="none" type="button" aria-label="Eraser">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20H8l-4.3-4.3a1 1 0 0 1 0-1.4L14.3 3.7a1 1 0 0 1 1.4 0l5 5a1 1 0 0 1 0 1.4L12 18.8"/><path d="M8 20l-4-4"/></svg>
-          </button>
-        </div>
-        <p class="paint-hint" id="paint-hint" hidden></p>
+        <p class="paint-hint" id="paint-hint"></p>
       </div>
 
+     </div>
+
+     <div class="toolbar-row toolbar-row--stats">
       <div class="tool-group tool-group--stats">
         <div class="section-title-row">
           <h2 class="tool-title">This month</h2>
-          <div class="info-icon" tabindex="0" role="note" data-tooltip="OOO days should be used for Sick days, Vacation Days, and Work from Anywhere days.">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M12 16v-4"/>
-              <path d="M12 8h.01"/>
-            </svg>
-          </div>
         </div>
         <div class="stat-list">
           <div class="stat-row"><span class="stat-dot dot-in-office"></span><span class="stat-name">In office</span><span class="stat-value" id="stat-in-office">0</span></div>
           <div class="stat-row"><span class="stat-dot dot-remote"></span><span class="stat-name">Remote</span><span class="stat-value" id="stat-remote">0</span></div>
           <div class="stat-row"><span class="stat-dot dot-ooo"></span><span class="stat-name">OOO</span><span class="stat-value" id="stat-ooo">0</span></div>
+          <div class="stat-row"><span class="stat-dot dot-wfa"></span><span class="stat-name">WFA</span><span class="stat-value" id="stat-wfa">0</span></div>
           <div class="stat-row"><span class="stat-dot dot-holiday"></span><span class="stat-name">Holiday</span><span class="stat-value" id="stat-holiday">0</span></div>
-        </div>
-        <div class="stat-summary">
-          <span class="stat-name">Target <b class="stat-value" id="stat-target">60% of days</b></span>
-          <span class="badge badge-neutral" id="stat-status-badge">No data</span>
+          <div class="stat-row" id="row-parental" hidden><span class="stat-dot dot-leave"></span><span class="stat-name">Parental</span><span class="stat-value" id="stat-parental">0</span></div>
+          <div class="stat-row" id="row-sabbatical" hidden><span class="stat-dot dot-leave"></span><span class="stat-name">Sabbatical</span><span class="stat-value" id="stat-sabbatical">0</span></div>
         </div>
       </div>
+
+      <div class="stat-summary">
+        <span class="stat-name">Target <b class="stat-value" id="stat-target">60% of days</b></span>
+        <span class="badge badge-neutral" id="stat-status-badge">No data</span>
+      </div>
+     </div>
     </section>
 
     <div class="workspace">
@@ -113,6 +143,14 @@
           <input id="todo-input" class="todo-input" type="text" maxlength="120" placeholder="Add a to-do" />
           <button class="todo-add" type="submit">Add</button>
         </form>
+
+        <div class="balances-head">
+          <h2 class="plan-title" id="balances-title">Yearly balances</h2>
+          <button type="button" id="btn-edit-balances" class="edit-balances-btn" aria-pressed="false" aria-label="Edit balances">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+        </div>
+        <div id="balances" class="balances" aria-live="polite"></div>
       </aside>
     </div>
   </main>

@@ -21,6 +21,7 @@
   --remote-bg: #dde9f5;
   --remote-fg: #2a5b8c;
   --ooo:       #f2c230;
+  --wfa:       #6b3fa0;
   --rule:      3px solid var(--green);
   --hair:      1px solid #1d4b3440;
   --ease:      cubic-bezier(0.22, 1, 0.36, 1);
@@ -53,6 +54,22 @@ html { scrollbar-color: var(--green) var(--paper-2); }
 }
 
 /* ─── Header ─────────────────────────────────────────────────────────────── */
+
+/* Centered paint-mode label; absolute so it never shifts the title or headline */
+.tracker-header { position: relative; }
+
+.header-mode {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--display);
+  font-size: 1.5rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.header-mode[hidden] { display: none; }
 
 .tracker-header {
   background: var(--green);
@@ -93,6 +110,7 @@ html { scrollbar-color: var(--green) var(--paper-2); }
   text-align: right;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 0.2rem;
 }
 
@@ -115,11 +133,12 @@ body.tracker main {
 
 /* ─── Toolbar ────────────────────────────────────────────────────────────── */
 
+/* Two independent rows (so one row's width never squeezes the other):
+   requirement left + paint mode right, then this month left + target right */
 .toolbar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem 2.5rem;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 1.25rem;
   padding-bottom: 1.25rem;
   border-bottom: var(--rule);
 }
@@ -133,7 +152,6 @@ body.tracker main {
   margin-bottom: 0.5rem;
 }
 
-.paint-mode-header .tool-title,
 .section-title-row .tool-title { margin-bottom: 0.5rem; }
 
 .section-title-row {
@@ -144,7 +162,18 @@ body.tracker main {
 
 .section-title-row .tool-title { margin-bottom: 0.5rem; }
 
-.tool-group--stats { margin-left: auto; min-width: 280px; }
+.toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.25rem 2.5rem;
+}
+
+.toolbar-row--stats { align-items: flex-end; }
+
+.tool-group--req   { order: 1; margin-left: auto; } /* top right */
+.tool-group--stats { flex: 1 1 auto; }
 
 .req-toggle,
 .paint-options {
@@ -154,7 +183,8 @@ body.tracker main {
 }
 
 .req-btn,
-.paint-btn {
+.paint-btn,
+.history-btn {
   padding: 0.5rem 0.9rem;
   border: 2px solid var(--green);
   border-radius: 3px;
@@ -168,7 +198,18 @@ body.tracker main {
 }
 
 .req-btn:hover:not(.active),
-.paint-btn:hover:not(.active) { background: var(--paper-2); }
+.paint-btn:hover:not(.active),
+.history-btn:hover { background: var(--paper-2); }
+
+.history-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.65rem;
+}
+
+.history-btn[hidden] { display: none; }
+.history-btn.placeholder { visibility: hidden; }
 
 .req-btn.active {
   background: var(--green);
@@ -179,6 +220,52 @@ body.tracker main {
 .paint-btn[data-status="remote"].active    { background: var(--remote-fg);  border-color: var(--remote-fg); color: #fff; }
 .paint-btn[data-status="ooo"].active       { background: var(--ooo);       border-color: var(--ooo);       color: var(--ink); }
 .paint-btn[data-status="holiday"].active   { background: var(--orange);    border-color: var(--orange);    color: #fff; }
+.paint-btn[data-status="wfa"].active,
+.paint-btn[data-status="parental"].active,
+.paint-btn[data-status="sabbatical"].active { background: var(--wfa);       border-color: var(--wfa);       color: #fff; }
+
+/* Daily / weekly paint sections */
+.paint-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+}
+
+.paint-section-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  margin-bottom: 0.3rem;
+}
+
+/* OOO type picker: only takes space while OOO is active */
+.ooo-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  display: none;
+}
+
+.ooo-types.is-visible { display: flex; }
+
+.ooo-type-btn {
+  padding: 0.25rem 0.6rem;
+  border: 2px solid var(--ooo);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ooo-type-btn:hover:not(.active) { background: #fcf3cf; }
+.ooo-type-btn.active { background: var(--ooo); }
 .paint-btn--eraser.active                  { background: var(--ink);       border-color: var(--ink);       color: #fff; }
 
 .paint-btn--eraser {
@@ -188,12 +275,28 @@ body.tracker main {
   padding: 0.5rem 0.65rem;
 }
 
-/* Paint mode indicator: an orange underline replaces the old rainbow text */
-#paint-mode-title.rainbow {
-  color: var(--orange);
-  box-shadow: 0 3px 0 var(--orange);
-  padding-bottom: 2px;
+/* Header background is the status indicator: orange when behind,
+   animated rainbow in paint mode (wins). Text stays white. */
+.tracker-header[data-state="behind"] { background: var(--orange); }
+
+.tracker-header[data-state="paint"] {
+  background: linear-gradient(90deg, #d64000, #c2255c, #6b3fa0, #1c7ed6, #2b8a3e, #b86e00, #d64000);
+  background-size: 200% 100%;
+  animation: rainbow-shift 4s linear infinite;
 }
+
+.tracker-header[data-state] .headline-note,
+.tracker-header[data-state] a { color: #fff; }
+
+@keyframes rainbow-shift {
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tracker-header[data-state="paint"] { animation: none; }
+}
+
+.paint-hint:empty { display: none; }
 
 .paint-hint {
   margin-top: 0.5rem;
@@ -201,41 +304,6 @@ body.tracker main {
   color: var(--ink);
   font-weight: 600;
 }
-
-/* Info tooltip */
-
-.info-icon {
-  position: relative;
-  color: var(--ink-soft);
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  cursor: help;
-}
-
-.info-icon::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  left: 0;
-  top: calc(100% + 6px);
-  width: 220px;
-  background: var(--ink);
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0;
-  text-transform: none;
-  padding: 0.5rem 0.65rem;
-  border-radius: 3px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s;
-  z-index: 100;
-}
-
-.info-icon:hover::after,
-.info-icon:focus-visible::after { opacity: 1; }
 
 /* Stats */
 
@@ -262,16 +330,21 @@ body.tracker main {
 .dot-remote    { background: var(--remote-fg); }
 .dot-ooo       { background: var(--ooo); }
 .dot-holiday   { background: var(--orange); }
+.dot-wfa       { background: var(--wfa); }
+.dot-leave     { background: #000; }
+.stat-row[hidden] { display: none; }
 
 .stat-name  { font-size: 0.85rem; color: var(--ink-soft); }
 .stat-value { font-size: 0.95rem; font-weight: 800; color: var(--ink); }
 
+/* Target + status: bottom right, level with the stat list */
 .stat-summary {
+  margin-left: auto;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.5rem 1.1rem;
-  margin-top: 0.7rem;
 }
 
 .badge {
@@ -310,7 +383,10 @@ body.tracker main {
   font-weight: 400;
   font-size: 1.75rem;
   letter-spacing: -0.01em;
-  min-width: 11ch;
+  /* Wide enough for the longest label ("September 2026") so the next button never shifts.
+     In em so it scales with the smaller mobile font size. */
+  min-width: 9.5em;
+  white-space: nowrap;
 }
 
 .nav-btn {
@@ -334,6 +410,7 @@ body.tracker main {
 .day-name-row,
 .calendar-grid {
   display: grid;
+  /* Mon–Fri */
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
@@ -435,10 +512,12 @@ body.tracker main {
 .day-cell[data-status="in-office"]:hover          { background: #dcedd4; }
 .day-cell[data-status="remote"]                   { background: #e6eff9; }
 .day-cell[data-status="remote"]:hover             { background: #d3e3f3; }
-.day-cell[data-status="ooo"]                      { background: #fcf3cf; }
-.day-cell[data-status="ooo"]:hover                { background: #f8e7a6; }
+.day-cell:is([data-status="vacation"], [data-status="sick"], [data-status="caregiver"], [data-status="bereavement"])       { background: #fcf3cf; }
+.day-cell:is([data-status="vacation"], [data-status="sick"], [data-status="caregiver"], [data-status="bereavement"]):hover { background: #f8e7a6; }
 .day-cell[data-status="holiday"]                  { background: #fbdec9; }
 .day-cell[data-status="holiday"]:hover            { background: #f9ceb1; }
+.day-cell:is([data-status="wfa"], [data-status="parental"], [data-status="sabbatical"])       { background: #eee6f7; }
+.day-cell:is([data-status="wfa"], [data-status="parental"], [data-status="sabbatical"]):hover { background: #e0d3f0; }
 
 /* Status sticker */
 
@@ -465,8 +544,9 @@ body.tracker main {
 
 .day-cell[data-status="in-office"] .day-status-label { background: var(--green);     color: #fff; }
 .day-cell[data-status="remote"]    .day-status-label { background: var(--remote-fg); color: #fff; }
-.day-cell[data-status="ooo"]       .day-status-label { background: var(--ooo);       color: var(--ink); }
+.day-cell:is([data-status="vacation"], [data-status="sick"], [data-status="caregiver"], [data-status="bereavement"]) .day-status-label { background: var(--ooo); color: var(--ink); }
 .day-cell[data-status="holiday"]   .day-status-label { background: var(--orange);    color: #fff; }
+.day-cell:is([data-status="wfa"], [data-status="parental"], [data-status="sabbatical"]) .day-status-label { background: var(--wfa); color: #fff; }
 
 /* Days outside the month: plain grey, no status tint, sticker hidden */
 .day-cell.out-of-month[data-status],
@@ -547,6 +627,87 @@ body.tracker main {
   font-size: 1.25rem;
   margin-bottom: 0.9rem;
 }
+
+.balances-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: var(--hair);
+}
+
+.edit-balances-btn {
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--green);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--green);
+  cursor: pointer;
+}
+
+.edit-balances-btn:hover:not(.on) { background: var(--paper-2); }
+.edit-balances-btn.on { background: var(--green); color: #fff; }
+
+.bal-sub-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.bal-added { font-size: 0.78rem; font-weight: 700; color: var(--ink); text-align: right; }
+
+.bal-adjust { display: flex; gap: 0.3rem; margin-top: 0.4rem; }
+
+.bal-adjust button {
+  flex: 1;
+  padding: 0.25rem 0.2rem;
+  border: 2px solid var(--green);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--green);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bal-adjust button:hover { background: var(--paper-2); }
+
+/* Yearly balances */
+.balances { display: flex; flex-direction: column; gap: 0.85rem; }
+
+.bal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.bal-name { font-size: 0.85rem; font-weight: 700; color: var(--ink); }
+.bal-used { font-size: 0.9rem; font-weight: 800; color: var(--ink); }
+
+.bal-bar {
+  height: 8px;
+  margin: 0.3rem 0 0.25rem;
+  background: var(--paper-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bal-bar span { display: block; height: 100%; background: var(--ooo); }
+.bal-row[data-status="wfa"] .bal-bar span,
+.bal-row[data-status="parental"] .bal-bar span,
+.bal-row[data-status="sabbatical"] .bal-bar span { background: var(--wfa); }
+.bal-row.over .bal-bar span { background: #9c2b1b; }
+.bal-row.over .bal-sub { color: #9c2b1b; font-weight: 700; }
+
+.bal-sub { font-size: 0.78rem; color: var(--ink-soft); margin-top: 0.15rem; }
 
 .plan-label {
   display: block;
@@ -695,6 +856,37 @@ body.tracker main {
 
 .popover-option:hover { background: var(--paper-2); }
 .popover-option.selected { font-weight: 800; background: var(--paper-2); }
+
+.popover-more {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  margin-top: 2px;
+  border: none;
+  border-top: var(--hair);
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.popover-more:hover { background: var(--paper-2); }
+
+.popover-more-list { display: flex; flex-direction: column; gap: 1px; }
+.popover-more-list[hidden] { display: none; }
+
+.popover-note {
+  padding: 0.35rem 0.6rem 0.1rem;
+  margin-top: 2px;
+  border-top: var(--hair);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
 
 .popover-clear {
   color: var(--ink-soft);
@@ -880,12 +1072,13 @@ body.tracker main {
 
 @media (max-width: 1100px) {
   .workspace { grid-template-columns: minmax(0, 1fr); }
-  .tool-group--stats { margin-left: 0; }
+  .tool-group--req, .stat-summary { margin-left: 0; }
 }
 
 @media (max-width: 700px) {
   .tracker-header { flex-direction: column; align-items: flex-start; padding: 1rem 1.25rem; gap: 0.75rem; }
-  .headline { text-align: left; }
+  .headline { text-align: left; align-items: flex-start; }
+  .header-mode { position: static; transform: none; font-size: 1.15rem; }
   .headline-value { font-size: 2.1rem; }
   body.tracker main { padding: 1rem 1rem 2rem; }
   .day-name-row, .calendar-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
